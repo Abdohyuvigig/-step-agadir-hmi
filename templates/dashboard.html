@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>STEP LafargeHolcim Agadir</title>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0f1117; color:#fff; font-family:monospace; padding:20px; }
+  h1 { color:#00d4aa; margin-bottom:20px; font-size:20px; }
+  .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .card { background:#1a1d27; border-radius:10px; padding:16px; border:1px solid #2a2d3a; }
+  .card-title { font-size:11px; color:#888; margin-bottom:8px; }
+  .status { font-size:16px; font-weight:bold; }
+  .on  { color:#00d4aa; }
+  .off { color:#444; }
+  .alarm { color:#ff4444; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
+  .dot.on    { background:#00d4aa; box-shadow:0 0 8px #00d4aa; }
+  .dot.off   { background:#333; }
+  .dot.alarm { background:#ff4444; box-shadow:0 0 8px #ff4444; animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  .header-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .timestamp { color:#555; font-size:12px; }
+  .section { margin-bottom:16px; color:#00d4aa; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="header-bar">
+  <h1>🏭 STEP LafargeHolcim Agadir-Souss</h1>
+  <span class="timestamp" id="ts">--:--:--</span>
+</div>
+
+<div class="section">⬆ RELEVAGE</div>
+<div class="grid" style="margin-bottom:16px">
+  <div class="card"><div class="card-title">Pompe P01</div><div class="status" id="P01_Run"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">Pompe P02</div><div class="status" id="P02_Run"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">Tamis rotatif</div><div class="status" id="Tamis_Run"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">EV Nettoyage</div><div class="status" id="Tamis_EV"><span class="dot off"></span>Fermée</div></div>
+</div>
+
+<div class="section">🫧 RÉACTEUR BIOLOGIQUE</div>
+<div class="grid" style="margin-bottom:16px">
+  <div class="card"><div class="card-title">Compresseur</div><div class="status" id="Compresseur"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">P03 Recirculation</div><div class="status" id="P03_Run"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">P04 Extraction</div><div class="status" id="P04_Run"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">P05 Cuve enterrée</div><div class="status" id="P05_Run"><span class="dot off"></span>Arrêt</div></div>
+</div>
+
+<div class="section">💧 TRAITEMENT TERTIAIRE</div>
+<div class="grid" style="margin-bottom:16px">
+  <div class="card"><div class="card-title">P06 Filtration</div><div class="status" id="P06_Run"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">P07 Filtration</div><div class="status" id="P07_Run"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">UV 40W</div><div class="status" id="UV_Run"><span class="dot off"></span>Éteinte</div></div>
+  <div class="card"><div class="card-title">Post-chloration</div><div class="status" id="DosPostChlor"><span class="dot off"></span>Arrêt</div></div>
+</div>
+
+<div class="section">🚨 ALARMES</div>
+<div class="grid">
+  <div class="card"><div class="card-title">Klaxon / Niveau Max</div><div class="status" id="Klaxon"><span class="dot off"></span>OK</div></div>
+  <div class="card"><div class="card-title">Voyant Alarme</div><div class="status" id="Voyant_Alarme"><span class="dot off"></span>OK</div></div>
+  <div class="card"><div class="card-title">Marche Général</div><div class="status" id="Voyant_Marche"><span class="dot off"></span>Arrêt</div></div>
+  <div class="card"><div class="card-title">UV Défaut</div><div class="status" id="UV_Defaut"><span class="dot off"></span>OK</div></div>
+</div>
+
+<script>
+const socket = io();
+const labels = {
+  P01_Run:"Marche", P02_Run:"Marche", Tamis_Run:"Marche", Tamis_EV:"Ouverte",
+  Compresseur:"Marche", P03_Run:"Marche", P04_Run:"Marche", P05_Run:"Marche",
+  P06_Run:"Marche", P07_Run:"Marche", UV_Run:"Active", DosPostChlor:"Marche",
+  Klaxon:"ALARME", Voyant_Alarme:"ALARME", Voyant_Marche:"Marche", UV_Defaut:"DÉFAUT"
+};
+const alarmKeys = ["Klaxon","Voyant_Alarme","UV_Defaut"];
+
+socket.on("update", data => {
+  document.getElementById("ts").textContent = new Date().toLocaleTimeString();
+  for (const [key, val] of Object.entries(data)) {
+    const el = document.getElementById(key);
+    if (!el) continue;
+    const isAlarm = alarmKeys.includes(key) && val;
+    const cls = isAlarm ? "alarm" : val ? "on" : "off";
+    const label = val ? (labels[key] || "Actif") : (key==="Voyant_Marche"?"Arrêt":"Arrêt");
+    el.innerHTML = `<span class="dot ${cls}"></span>${label}`;
+    el.className = "status " + cls;
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: step-agadir-hmi
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k eventlet -w 1 cloud_app:app

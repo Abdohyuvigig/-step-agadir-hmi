@@ -1,0 +1,9 @@
+flask
+flask-socketio
+flask-cors
+paho-mqtt
+openpyxl
+requests
+gunicorn
+eventlet
+ 
