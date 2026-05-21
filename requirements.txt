@@ -5,5 +5,4 @@ paho-mqtt
 openpyxl
 requests
 gunicorn
-gevent
-gevent-websocket
+simple-websocket

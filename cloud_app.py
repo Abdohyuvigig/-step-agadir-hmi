@@ -1,10 +1,10 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 import paho.mqtt.client as mqtt
-import json, os
+import json, os, threading
 
 app = Flask(__name__)
-sio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
+sio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # ── CONFIG HIVEMQ ──────────────────────────────────
 MQTT_HOST   = "277a9bc1ee1e48f88ff42c82bdecb4c5.s1.eu.hivemq.cloud"
@@ -22,7 +22,7 @@ mqttc.tls_set()
 
 def on_connect(client, userdata, flags, rc, props):
     client.subscribe(TOPIC_STATE)
-    print("✅ Cloud HiveMQ connecté")
+    print("✅ HiveMQ connecté")
 
 def on_message(client, userdata, msg):
     global last_state
@@ -30,17 +30,21 @@ def on_message(client, userdata, msg):
         last_state = json.loads(msg.payload.decode())
         sio.emit("update", last_state)
     except Exception as e:
-        print(f"❌ Erreur message: {e}")
+        print(f"❌ Erreur: {e}")
 
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 
-try:
-    mqttc.connect(MQTT_HOST, MQTT_PORT)
-    mqttc.loop_start()
-    print("✅ MQTT démarré")
-except Exception as e:
-    print(f"❌ MQTT erreur: {e}")
+def start_mqtt():
+    try:
+        mqttc.connect(MQTT_HOST, MQTT_PORT)
+        mqttc.loop_forever()
+    except Exception as e:
+        print(f"❌ MQTT erreur: {e}")
+
+# Démarrer MQTT dans un thread séparé
+t = threading.Thread(target=start_mqtt, daemon=True)
+t.start()
 
 @app.route("/")
 def index():
@@ -57,7 +61,7 @@ def send_cmd(data):
         mqttc.publish(topic, str(data['value']))
         print(f"📤 Commande: {topic} = {data['value']}")
     except Exception as e:
-        print(f"❌ Erreur commande: {e}")
+        print(f"❌ Erreur: {e}")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
