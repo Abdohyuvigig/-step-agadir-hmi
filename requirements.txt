@@ -1,9 +1,9 @@
-flask
-flask-socketio
+flask==2.3.3
+flask-socketio==5.3.6
 flask-cors
 paho-mqtt
 openpyxl
 requests
 gunicorn
-eventlet
- 
+gevent
+gevent-websocket
