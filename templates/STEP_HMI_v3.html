@@ -2,152 +2,155 @@
 <html lang="fr">
 <head>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>STEP HMI — LafargeHolcim Agadir</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
 :root{
   --bg:#07101f;--bg2:#0b1a30;--bg3:#0f2040;--bg4:#142848;
   --bdr:#1b3558;--bdr2:#2a4a72;
   --t:#c2d8f0;--t2:#5a7fa8;--t3:#243a58;
-  --G:#00e676;--Gd:#001f10;--Gb:#00c853;
+  --G:#00e676;--Gd:#001f10;
   --R:#ff3d57;--Rd:#1f050a;
   --O:#ff9800;--Od:#1f1000;
   --B:#29b6f6;--Bd:#001828;
   --C:#00e5ff;--P:#ce93d8;
-  --W:#fff176;--Wd:#1f1c00;
 }
 html,body{height:100%;background:var(--bg);color:var(--t);overflow:hidden}
-/* ─── ROOT ─── */
 .root{display:flex;flex-direction:column;height:100vh}
-/* ─── HEADER ─── */
-.hdr{height:48px;background:var(--bg2);border-bottom:1px solid var(--bdr2);display:flex;align-items:stretch;flex-shrink:0;position:relative}
-.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#0b1a30,var(--C),var(--G),var(--C),#0b1a30)}
-.logo{padding:0 20px;display:flex;align-items:center;gap:10px;border-right:1px solid var(--bdr);flex-shrink:0}
-.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--C),var(--G));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#07101f}
-.logo-text{display:flex;flex-direction:column}
+
+/* HEADER */
+.hdr{height:46px;background:var(--bg2);border-bottom:2px solid var(--bdr2);display:flex;align-items:stretch;flex-shrink:0;position:relative}
+.hdr::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--C),var(--G),var(--C),transparent)}
+.logo{padding:0 18px;display:flex;align-items:center;gap:10px;border-right:1px solid var(--bdr)}
+.logo-icon{width:26px;height:26px;background:linear-gradient(135deg,var(--C),var(--G));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#07101f}
 .logo-t1{font-size:12px;font-weight:700;color:var(--C);letter-spacing:.08em}
-.logo-t2{font-size:9px;color:var(--t2);letter-spacing:.04em}
+.logo-t2{font-size:9px;color:var(--t2)}
 .tabs{display:flex;flex:1}
-.tab{padding:0 16px;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;font-weight:600;color:var(--t2);border-right:1px solid var(--bdr);letter-spacing:.04em;transition:.15s;position:relative;user-select:none}
-.tab:hover{background:rgba(41,182,246,.06);color:var(--t)}
-.tab.on{color:var(--C);background:rgba(41,182,246,.08)}
+.tab{padding:0 16px;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:11px;font-weight:600;color:var(--t2);border-right:1px solid var(--bdr);transition:.15s;user-select:none;position:relative}
+.tab:hover{background:rgba(0,229,255,.06);color:var(--t)}
+.tab.on{color:var(--C);background:rgba(0,229,255,.08)}
 .tab.on::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--C)}
-.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--t3)}
+.tdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--t3);transition:.3s}
 .tdot.g{background:var(--G);box-shadow:0 0 6px var(--G)}
 .tdot.r{background:var(--R);animation:blink .8s infinite}
+.tdot.o{background:var(--O)}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid var(--bdr)}
-.clk{font-family:monospace;font-size:15px;font-weight:700;color:var(--C);letter-spacing:.12em}
+.clk{font-family:monospace;font-size:15px;font-weight:700;color:var(--C);letter-spacing:.1em}
 .badge{padding:3px 10px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.06em;font-family:monospace}
 .bg{background:var(--Gd);color:var(--G);border:1px solid #005522}
 .br{background:var(--Rd);color:var(--R);border:1px solid #660015;animation:blink .8s infinite}
 .bw{background:var(--Od);color:var(--O);border:1px solid #7a4000}
 .bx{background:#0a0a0a;color:var(--t3);border:1px solid var(--bdr)}
-/* ─── SCREENS ─── */
+.bc{background:rgba(0,229,255,.1);color:var(--C);border:1px solid rgba(0,229,255,.3)}
+
+/* SCREENS */
 .shost{flex:1;overflow:hidden;position:relative}
 .sc{display:none;position:absolute;inset:0;padding:7px;gap:7px}
 .sc.on{display:grid}
-#s1{grid-template-columns:190px 1fr 200px}
-#s2{grid-template-columns:1fr 1fr 1fr;grid-template-rows:1fr 1fr}
-#s3{grid-template-columns:1fr 380px}
+#s1{grid-template-columns:180px 1fr 195px}
+#s2{grid-template-columns:repeat(5,1fr);grid-template-rows:1fr 1fr}
+#s3{grid-template-columns:1fr 300px}
 #s4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
-#s5{grid-template-columns:1fr 300px}
-/* ─── PANEL ─── */
-.p{background:var(--bg2);border:1px solid var(--bdr);border-radius:5px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+#s5{grid-template-columns:1fr 320px}
+
+/* PANEL */
+.p{background:var(--bg2);border:1px solid var(--bdr);border-radius:5px;display:flex;flex-direction:column;overflow:hidden;min-height:0;position:relative}
+.p::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--bdr2),transparent)}
 .ph{background:var(--bg3);border-bottom:1px solid var(--bdr);padding:5px 12px;font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.ph span{color:var(--C);font-size:9px;font-weight:400;letter-spacing:.04em}
+.ph-v{color:var(--C);font-size:9px;font-weight:400}
 .pb{flex:1;padding:9px;overflow-y:auto;display:flex;flex-direction:column;gap:5px}
 .pb::-webkit-scrollbar{width:3px}
 .pb::-webkit-scrollbar-thumb{background:var(--bdr2)}
-/* ─── INFO ROW ─── */
-.ir{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(27,53,88,.5)}
+
+/* INFO ROW */
+.ir{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(27,53,88,.5)}
 .ir:last-child{border:none}
 .ik{font-size:10px;color:var(--t2)}
 .iv{font-size:11px;font-family:monospace;font-weight:700}
 .ok{color:var(--G)}.bad{color:var(--R)}.warn{color:var(--O)}.blue{color:var(--B)}.cy{color:var(--C)}.off{color:var(--t3)}
-/* ─── PUMP CARD ─── */
-.pc{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:9px;display:flex;flex-direction:column;gap:7px;height:100%;position:relative;overflow:hidden;transition:.25s border-color}
-.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bdr);transition:.25s}
-.pc.run{border-color:#005522}.pc.run::before{background:var(--G);box-shadow:0 0 10px var(--G)}
-.pc.fault{border-color:#660015}.pc.fault::before{background:var(--R);box-shadow:0 0 10px var(--R)}
-.pc.man{border-color:#7a4000}.pc.man::before{background:var(--O)}
-.pct{display:flex;justify-content:space-between;align-items:flex-start}
-.pname{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
-.pmodel{font-size:9px;color:var(--t3);margin-top:2px}
-.pst{padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;font-family:monospace;white-space:nowrap}
-.sr{background:var(--Gd);color:var(--G);border:1px solid #005522}
-.ss{background:#060c14;color:var(--t3);border:1px solid var(--bdr)}
-.sf{background:var(--Rd);color:var(--R);border:1px solid #660015}
-.sm{background:var(--Od);color:var(--O);border:1px solid #7a4000}
-.led{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+
+/* EQUIPMENT CARD */
+.ec{background:var(--bg3);border:1px solid var(--bdr);border-radius:5px;padding:10px;display:flex;flex-direction:column;gap:8px;height:100%;position:relative;overflow:hidden;transition:.3s}
+.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bdr);transition:.3s}
+.ec.run{border-color:#005522}.ec.run::before{background:var(--G);box-shadow:0 0 12px var(--G)}
+.ec.fault{border-color:#660015}.ec.fault::before{background:var(--R);box-shadow:0 0 12px var(--R)}
+.ec.man{border-color:#7a4000}.ec.man::before{background:var(--O)}
+.ec.off-state{opacity:.7}
+.ec-top{display:flex;justify-content:space-between;align-items:flex-start}
+.ec-name{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px}
+.ec-model{font-size:9px;color:var(--t3);margin-top:2px}
+.est{padding:3px 9px;border-radius:3px;font-size:10px;font-weight:700;font-family:monospace}
+.esr{background:var(--Gd);color:var(--G);border:1px solid #005522}
+.ess{background:#060c14;color:var(--t3);border:1px solid var(--bdr)}
+.esf{background:var(--Rd);color:var(--R);border:1px solid #660015}
+.esm{background:var(--Od);color:var(--O);border:1px solid #7a4000}
+.led{width:9px;height:9px;border-radius:50%;flex-shrink:0;display:inline-block}
 .lg{background:var(--G);box-shadow:0 0 6px var(--G)}
-.lr{background:var(--R);animation:blink .8s infinite}
-.lo{background:var(--O)}
+.lr{background:var(--R);animation:blink .8s infinite;box-shadow:0 0 6px var(--R)}
+.lo{background:var(--O);box-shadow:0 0 5px var(--O)}
 .lx{background:#1a2a3a}
-.pv{font-size:9px;color:var(--t2);display:grid;grid-template-columns:1fr 1fr;gap:2px}
-.pv b{color:var(--B);font-family:monospace}
-.pbig{font-size:24px;font-weight:700;font-family:monospace;color:var(--C);text-align:center}
-.pbu{font-size:9px;color:var(--t3);text-align:center;margin-top:-4px}
-.pbtns{display:flex;gap:4px}
-.pbtn{flex:1;padding:5px 0;border-radius:3px;border:none;font-size:10px;font-weight:700;cursor:pointer;transition:.12s;letter-spacing:.04em}
-.bg2{background:var(--Gd);color:var(--G);border:1px solid #005522}.bg2:hover{background:#003318}
-.br2{background:var(--Rd);color:var(--R);border:1px solid #660015}.br2:hover{background:#3d0010}
-.bm{background:var(--Od);color:var(--O);border:1px solid #7a4000}.bm:hover{background:#3d2000}
-.ba{background:var(--Bd);color:var(--B);border:1px solid #005577}.ba:hover{background:#002233}
-/* ─── MINI GAUGE ─── */
-.mg{background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:7px 10px}
+.lc{background:var(--C);box-shadow:0 0 5px var(--C)}
+.ev{font-size:9px;color:var(--t2);display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.ev b{color:var(--B);font-family:monospace}
+.ebig{font-size:26px;font-weight:700;font-family:monospace;color:var(--C);text-align:center;line-height:1}
+.ebu{font-size:9px;color:var(--t3);text-align:center;margin-top:-3px}
+
+/* TANK */
+.tw{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tout{border:1px solid var(--bdr);border-radius:3px 3px 0 0;background:#040a14;position:relative;overflow:hidden}
+.tfill{position:absolute;bottom:0;left:0;right:0;transition:height .8s ease-in-out}
+.tpct{font-size:12px;font-weight:700;font-family:monospace}
+.tlbl{font-size:9px;color:var(--t3);text-align:center;line-height:1.4}
+
+/* ALARM TABLE */
+.atbl{width:100%;border-collapse:collapse;font-size:11px;font-family:monospace}
+.atbl th{background:var(--bg3);color:var(--t2);padding:5px 9px;text-align:left;font-size:9px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--bdr);position:sticky;top:0}
+.atbl td{padding:5px 9px;border-bottom:1px solid rgba(27,53,88,.4);font-size:10px;vertical-align:middle}
+.atbl tr:hover td{background:rgba(0,229,255,.03)}
+.acr{color:var(--R)}.aw{color:var(--O)}.aok{color:var(--G)}.aack{color:var(--t3)}
+
+/* STAT BOX */
+.sb{background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:10px;text-align:center}
+.sv{font-size:24px;font-weight:700;font-family:monospace;color:var(--C)}
+.sl{font-size:9px;color:var(--t3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+
+/* MINI GAUGE */
+.mg{background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:8px 10px}
 .mgv{font-size:17px;font-weight:700;font-family:monospace;color:var(--C)}
 .mgl{font-size:9px;color:var(--t3);margin-top:1px}
 .mgbar{height:4px;background:var(--bg4);border-radius:2px;margin-top:5px;overflow:hidden}
 .mgf{height:100%;border-radius:2px;transition:width .6s}
-/* ─── TANK ─── */
-.tw{display:flex;flex-direction:column;align-items:center;gap:3px}
-.tout{border:1px solid var(--bdr);border-radius:3px 3px 0 0;background:#040a14;position:relative;overflow:hidden;flex-shrink:0}
-.tfill{position:absolute;bottom:0;left:0;right:0;transition:height .8s ease-in-out}
-.tpct{font-size:11px;font-weight:700;font-family:monospace}
-.tlbl{font-size:9px;color:var(--t3);text-align:center;line-height:1.4}
-/* ─── DEBIT PANEL ─── */
-.debit-hero{background:linear-gradient(160deg,rgba(0,229,255,.06),rgba(0,230,118,.04));border:1px solid rgba(0,229,255,.18);border-radius:5px;padding:14px;display:flex;flex-direction:column;gap:10px}
-.debit-num{font-size:52px;font-weight:700;font-family:monospace;color:var(--C);text-align:center;line-height:1;text-shadow:0 0 30px rgba(0,229,255,.3)}
-.debit-unit{font-size:13px;color:var(--t2);text-align:center;margin-top:-4px}
-.presets{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
-.pr{padding:6px 0;border:1px solid var(--bdr);border-radius:3px;background:transparent;color:var(--t2);font-size:10px;font-weight:700;cursor:pointer;transition:.12s;text-align:center}
-.pr:hover{border-color:var(--C);color:var(--C);background:rgba(0,229,255,.07)}
-.pr.on{border-color:var(--G);color:var(--G);background:rgba(0,230,118,.1)}
-input[type=range]{width:100%;accent-color:var(--C);cursor:pointer}
-/* ─── FLOTTEURS ─── */
-.frow{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
-.fl{border-radius:4px;padding:7px 4px;text-align:center;border:1px solid var(--bdr);transition:.3s}
-.fl-on{background:rgba(0,230,118,.12);border-color:#005522}
-.fl-alm{background:rgba(255,61,87,.12);border-color:#660015;animation:blink .8s infinite}
-.fl-off{background:var(--bg3)}
-/* ─── ALARM ─── */
-.atbl{width:100%;border-collapse:collapse;font-size:11px;font-family:monospace}
-.atbl th{background:var(--bg3);color:var(--t2);padding:5px 9px;text-align:left;font-size:9px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--bdr);position:sticky;top:0}
-.atbl td{padding:4px 9px;border-bottom:1px solid rgba(27,53,88,.4);font-size:10px;vertical-align:middle}
-.atbl tr:hover td{background:rgba(41,182,246,.04)}
-.acr{color:var(--R)}.aw{color:var(--O)}.aok{color:var(--G)}.aack{color:var(--t3)}
-/* ─── STAT BOX ─── */
-.sbox{background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:9px;text-align:center}
-.sval{font-size:22px;font-weight:700;font-family:monospace;color:var(--C)}
-.slbl{font-size:9px;color:var(--t3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
-/* ─── BBAR ─── */
+
+/* BBAR */
 .bbar{display:flex;gap:5px;padding:7px 9px;background:var(--bg3);border-top:1px solid var(--bdr);flex-shrink:0}
-.ab{padding:5px 13px;border-radius:3px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;letter-spacing:.05em}
+.ab{padding:5px 14px;border-radius:3px;border:none;font-size:11px;font-weight:700;cursor:pointer;transition:.12s;letter-spacing:.05em}
 .abg{background:var(--Gd);color:var(--G);border:1px solid #005522}.abg:hover{background:#003318}
 .abr{background:var(--Rd);color:var(--R);border:1px solid #660015}.abr:hover{background:#3d0010}
 .abb{background:var(--Bd);color:var(--B);border:1px solid #005577}.abb:hover{background:#002233}
-.abn{background:transparent;color:var(--t2);border:1px solid var(--bdr)}.abn:hover{background:rgba(255,255,255,.04)}
-/* ─── STATUS BAR ─── */
-.sbar{height:26px;background:var(--bg2);border-top:1px solid var(--bdr);display:flex;align-items:center;padding:0 14px;gap:0;flex-shrink:0;font-family:monospace;font-size:10px;color:var(--t2)}
+.abn{background:transparent;color:var(--t2);border:1px solid var(--bdr)}.abn:hover{background:rgba(255,255,255,.03)}
+
+/* STATUS BAR */
+.sbar{height:26px;background:var(--bg2);border-top:1px solid var(--bdr);display:flex;align-items:center;padding:0 14px;flex-shrink:0;font-family:monospace;font-size:10px;color:var(--t2)}
 .si{padding:0 12px;border-right:1px solid var(--bdr);height:100%;display:flex;align-items:center;gap:5px}
 .si:last-child{border:none;margin-left:auto}
 .sdot{width:6px;height:6px;border-radius:50%}
-/* ─── CHART ─── */
-.cw{flex:1;position:relative;min-height:60px}
+
+/* CHART */
+.cw{flex:1;position:relative;min-height:50px}
 canvas.ch{position:absolute;inset:0}
-/* ─── ANIM ─── */
+
+/* FLOTTEUR */
+.fl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.fl-box{border-radius:4px;padding:8px 4px;text-align:center;border:1px solid var(--bdr);transition:.3s}
+.fl-on{background:rgba(0,230,118,.1);border-color:#005522}
+.fl-alm{background:rgba(255,61,87,.1);border-color:#660015;animation:blink .8s infinite}
+.fl-off{background:var(--bg3)}
+
+/* CONNECTION STATUS */
+.conn-banner{background:rgba(255,152,0,.1);border:1px solid rgba(255,152,0,.3);border-radius:4px;padding:8px 12px;font-size:11px;color:var(--O);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.conn-banner.connected{background:rgba(0,230,118,.1);border-color:rgba(0,230,118,.3);color:var(--G)}
+
 @keyframes blink{50%{opacity:0}}
 @keyframes flowA{to{stroke-dashoffset:-12}}
 @keyframes flowB{to{stroke-dashoffset:-10}}
@@ -158,24 +161,22 @@ canvas.ch{position:absolute;inset:0}
 <body>
 <div class="root">
 
-<!-- ── HEADER ── -->
+<!-- HEADER -->
 <div class="hdr">
   <div class="logo">
     <div class="logo-icon">S</div>
-    <div class="logo-text">
-      <div class="logo-t1">STEP HMI v3.0</div>
-      <div class="logo-t2">LafargeHolcim Agadir-Souss · SINPEC/SALHER</div>
-    </div>
+    <div><div class="logo-t1">STEP HMI v3.0</div><div class="logo-t2">LafargeHolcim Agadir · SINPEC/SALHER</div></div>
   </div>
   <div class="tabs">
-    <div class="tab on"  onclick="go(1,this)"><span class="tdot g" id="d1"></span>Synoptique</div>
-    <div class="tab" onclick="go(2,this)"><span class="tdot g" id="d2"></span>Pompes</div>
+    <div class="tab on" onclick="go(1,this)"><span class="tdot g" id="d1"></span>Synoptique</div>
+    <div class="tab" onclick="go(2,this)"><span class="tdot g" id="d2"></span>Équipements</div>
     <div class="tab" onclick="go(3,this)"><span class="tdot g" id="d3"></span>Relevage & Débit</div>
     <div class="tab" onclick="go(4,this)"><span class="tdot g" id="d4"></span>Niveaux</div>
-    <div class="tab" onclick="go(5,this)"><span class="tdot"  id="d5"></span>Alarmes</div>
+    <div class="tab" onclick="go(5,this)"><span class="tdot" id="d5"></span>Alarmes</div>
   </div>
   <div class="hdr-right">
     <span class="clk" id="clk">--:--:--</span>
+    <span class="badge bc" id="conn-badge">⟳ ATTENTE PLC</span>
     <span class="badge bg" id="g-badge">● AUTO</span>
     <span class="badge bw" id="a-badge">0 ALM</span>
   </div>
@@ -185,314 +186,261 @@ canvas.ch{position:absolute;inset:0}
 
 <!-- ══ S1: SYNOPTIQUE ══ -->
 <div class="sc on" id="s1">
-  <!-- LEFT list -->
   <div class="p">
-    <div class="ph">Équipements <span id="run-cnt">— ON</span></div>
-    <div class="pb" id="ov-list" style="gap:3px"></div>
+    <div class="ph">Équipements <span class="ph-v" id="run-cnt">— ON</span></div>
+    <div class="pb" id="ov-list" style="gap:3px">
+      <div class="conn-banner" id="conn-msg">⟳ En attente des données PLCSIM...</div>
+    </div>
     <div class="bbar">
-      <button class="ab abg" onclick="gStart()">▶ START</button>
-      <button class="ab abr" onclick="gStop()">■ STOP</button>
-      <button class="ab abb" onclick="ackAll()">✓ ACQ</button>
+      <button class="ab abb" onclick="ackAll()">✓ ACQ Alarmes</button>
     </div>
   </div>
 
-  <!-- CENTER SVG -->
+  <!-- SVG PROCESS -->
   <div class="p">
-    <div class="ph">Schéma Procédé <span>temps réel · LafargeHolcim Agadir</span></div>
+    <div class="ph">Schéma Procédé <span class="ph-v">temps réel PLCSIM</span></div>
     <div style="flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:6px">
       <svg id="psvg" viewBox="0 0 560 480" style="width:100%;max-height:100%">
         <defs>
           <marker id="ma" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0L5,2.5L0,5Z" fill="#29b6f6"/></marker>
-          <marker id="mg" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0L5,2.5L0,5Z" fill="#00e676"/></marker>
           <marker id="mo" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0L5,2.5L0,5Z" fill="#ff9800"/></marker>
         </defs>
         <rect width="560" height="480" fill="#07101f"/>
-
         <!-- POSTE RELEVAGE -->
-        <rect x="5" y="5" width="115" height="118" rx="4" fill="#0b1a30" stroke="#2a4a72" stroke-width="1"/>
+        <rect x="5" y="5" width="115" height="140" rx="4" fill="#0b1a30" stroke="#2a4a72"/>
         <text x="62" y="16" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700" letter-spacing="1">POSTE RELEVAGE</text>
-        <!-- tank body -->
-        <rect x="10" y="22" width="48" height="88" rx="2" fill="#040c18" stroke="#1b3558"/>
-        <!-- water fill — animé -->
-        <rect id="sv-rel-fill" x="11" y="66" width="46" height="43" fill="#1a4080" opacity=".85"/>
-        <!-- flotteur lines -->
+        <rect x="10" y="22" width="48" height="90" rx="2" fill="#040c18" stroke="#1b3558"/>
+        <rect id="sv-rel" x="11" y="88" width="46" height="23" fill="#1a4080" opacity=".85"/>
         <line x1="10" y1="28" x2="58" y2="28" stroke="#ff3d57" stroke-width=".7" stroke-dasharray="3 2" opacity=".7"/>
-        <line x1="10" y1="54" x2="58" y2="54" stroke="#29b6f6" stroke-width=".7" stroke-dasharray="3 2" opacity=".6"/>
+        <line x1="10" y1="50" x2="58" y2="50" stroke="#29b6f6" stroke-width=".7" stroke-dasharray="3 2" opacity=".7"/>
         <line x1="10" y1="75" x2="58" y2="75" stroke="#ff9800" stroke-width=".7" stroke-dasharray="3 2" opacity=".5"/>
-        <line x1="10" y1="98" x2="58" y2="98" stroke="#ff9800" stroke-width=".7" stroke-dasharray="3 2" opacity=".4"/>
-        <!-- flotteur dots -->
-        <circle id="svf5" cx="66" cy="28" r="4" fill="#1b3558"/><circle cx="66" cy="28" r="2.5" id="svf5i" fill="#ff3d57"/>
-        <circle id="svf4" cx="66" cy="54" r="4" fill="#1b3558"/><circle cx="66" cy="54" r="2.5" id="svf4i" fill="#29b6f6"/>
-        <circle id="svf2" cx="66" cy="75" r="4" fill="#1b3558"/><circle cx="66" cy="75" r="2.5" id="svf2i" fill="#00e676"/>
-        <circle id="svf1" cx="66" cy="98" r="4" fill="#1b3558"/><circle cx="66" cy="98" r="2.5" id="svf1i" fill="#00e676"/>
+        <line x1="10" y1="100" x2="58" y2="100" stroke="#ff9800" stroke-width=".7" stroke-dasharray="3 2" opacity=".4"/>
+        <circle cx="66" cy="28" r="4" fill="#1b3558"/><circle id="svf5" cx="66" cy="28" r="2.5" fill="#243a58"/>
+        <circle cx="66" cy="50" r="4" fill="#1b3558"/><circle id="svf4" cx="66" cy="50" r="2.5" fill="#243a58"/>
+        <circle cx="66" cy="75" r="4" fill="#1b3558"/><circle id="svf2" cx="66" cy="75" r="2.5" fill="#243a58"/>
+        <circle cx="66" cy="100" r="4" fill="#1b3558"/><circle id="svf1" cx="66" cy="100" r="2.5" fill="#243a58"/>
         <text x="73" y="31" fill="#1b3558" font-size="5.5">N5 MAX</text>
-        <text x="73" y="57" fill="#1b3558" font-size="5.5">N4 START</text>
+        <text x="73" y="53" fill="#1b3558" font-size="5.5">N4 START</text>
         <text x="73" y="78" fill="#1b3558" font-size="5.5">N2</text>
-        <text x="73" y="101" fill="#1b3558" font-size="5.5">N1</text>
-        <!-- pompes -->
-        <circle id="svp01" cx="20" cy="120" r="10" fill="#0b1a30" stroke="#00e676" stroke-width="2"/>
-        <text x="20" y="123" text-anchor="middle" fill="#00e676" font-size="6" font-weight="700">P01</text>
-        <circle id="svp02" cx="46" cy="120" r="10" fill="#0b1a30" stroke="#1b3558" stroke-width="1.5"/>
-        <text x="46" y="123" text-anchor="middle" fill="#243a58" font-size="6" font-weight="700">P02</text>
-        <!-- debit label -->
-        <rect x="5" y="133" width="115" height="13" rx="2" fill="#040c18" stroke="#2a4a72"/>
-        <text id="svdebit" x="62" y="143" text-anchor="middle" fill="#00e5ff" font-size="7" font-weight="700" font-family="monospace">Q: 1.00 m³/h</text>
+        <text x="73" y="103" fill="#1b3558" font-size="5.5">N1</text>
+        <circle id="svp01" cx="20" cy="133" r="10" fill="#0b1a30" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="20" y="136" text-anchor="middle" fill="#243a58" font-size="6" font-weight="700">P01</text>
+        <circle id="svp02" cx="46" cy="133" r="10" fill="#0b1a30" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="46" y="136" text-anchor="middle" fill="#243a58" font-size="6" font-weight="700">P02</text>
+        <rect x="5" y="148" width="115" height="13" rx="2" fill="#040c18" stroke="#1b3558"/>
+        <text id="svdebit" x="62" y="158" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700" font-family="monospace">Q: -- m³/h</text>
 
         <!-- TAMIS -->
         <rect x="128" y="5" width="80" height="44" rx="4" fill="#0b1a30" stroke="#1b3558"/>
-        <text x="168" y="16" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700">TAMIS TA-RO MINI</text>
-        <circle id="svtamis" cx="155" cy="30" r="11" fill="#040c18" stroke="#00e676" stroke-width="2" stroke-dasharray="5 2"/>
-        <text x="155" y="33" text-anchor="middle" fill="#00e676" font-size="6" font-weight="700">ACTIF</text>
-        <circle id="svev" cx="186" cy="30" r="7" fill="#040c18" stroke="#29b6f6" stroke-width="1.5"/>
-        <text x="186" y="33" text-anchor="middle" fill="#29b6f6" font-size="5.5" font-weight="700">EV</text>
+        <text x="168" y="16" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700">TAMIS TA-RO</text>
+        <circle id="svtamis" cx="155" cy="30" r="11" fill="#040c18" stroke="#1b3558" stroke-width="1.5" stroke-dasharray="5 2"/>
+        <text id="svtamisst" x="155" y="33" text-anchor="middle" fill="#243a58" font-size="6" font-weight="700">—</text>
+        <circle id="svev" cx="186" cy="30" r="7" fill="#040c18" stroke="#1b3558" stroke-width="1"/>
+        <text id="svevst" x="186" y="33" text-anchor="middle" fill="#243a58" font-size="5.5">EV</text>
 
-        <!-- RÉACTEUR BIO -->
-        <rect x="5" y="152" width="230" height="118" rx="4" fill="#0b1a30" stroke="#1b3558"/>
-        <text x="120" y="163" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700" letter-spacing="1">RÉACTEUR BIOLOGIQUE</text>
-        <!-- bassin aération -->
-        <rect x="12" y="168" width="142" height="92" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <rect id="sv-eau-r" x="12" y="210" width="142" height="50" fill="#0e2a50" opacity=".5"/>
-        <!-- diffuseurs aération -->
-        <rect x="18" y="254" width="130" height="4" rx="2" fill="#1b3558"/>
-        <circle class="bbl" cx="30" cy="248" r="2.5" fill="none" stroke="#29b6f6" stroke-width="1" opacity=".6"/>
-        <circle class="bbl" cx="52" cy="242" r="2" fill="none" stroke="#29b6f6" stroke-width="1" opacity=".5"/>
-        <circle class="bbl" cx="76" cy="246" r="3" fill="none" stroke="#29b6f6" stroke-width="1" opacity=".6"/>
-        <circle class="bbl" cx="100" cy="241" r="2" fill="none" stroke="#29b6f6" stroke-width="1" opacity=".5"/>
-        <circle class="bbl" cx="126" cy="248" r="2.5" fill="none" stroke="#29b6f6" stroke-width="1" opacity=".6"/>
-        <!-- Décanteur -->
-        <rect x="160" y="168" width="68" height="92" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <text x="194" y="178" text-anchor="middle" fill="#1b3558" font-size="6">DÉCANTEUR 2nd</text>
-        <rect x="160" y="205" width="68" height="55" fill="#0e2a50" opacity=".3"/>
-        <rect x="160" y="240" width="68" height="20" fill="#1a1000" opacity=".5"/>
-        <!-- FPZ compresseur -->
-        <rect id="sv-comp-box" x="12" y="260" width="70" height="13" rx="2" fill="#040c18" stroke="#00e676" stroke-width="1"/>
-        <text x="47" y="270" text-anchor="middle" fill="#00e676" font-size="5.5" font-weight="700">COMP. FPZ R-30 MD</text>
-        <!-- P03 P04 -->
-        <circle id="svp03" cx="176" cy="262" r="9" fill="#040c18" stroke="#ff9800" stroke-width="1.5"/>
-        <text x="176" y="265" text-anchor="middle" fill="#ff9800" font-size="5.5" font-weight="700">P03</text>
-        <circle id="svp04" cx="202" cy="262" r="9" fill="#040c18" stroke="#ff9800" stroke-width="1.5"/>
-        <text x="202" y="265" text-anchor="middle" fill="#ff9800" font-size="5.5" font-weight="700">P04</text>
+        <!-- RÉACTEUR -->
+        <rect x="5" y="168" width="230" height="118" rx="4" fill="#0b1a30" stroke="#1b3558"/>
+        <text x="120" y="179" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700" letter-spacing="1">RÉACTEUR BIOLOGIQUE</text>
+        <rect x="12" y="184" width="142" height="92" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <rect x="12" y="220" width="142" height="56" fill="#0e2a50" opacity=".4"/>
+        <rect x="18" y="268" width="130" height="4" rx="2" fill="#1b3558"/>
+        <circle class="bbl" cx="30" cy="262" r="2.5" fill="none" stroke="#1b3558" stroke-width="1" opacity=".4"/>
+        <circle class="bbl" cx="60" cy="255" r="2" fill="none" stroke="#1b3558" stroke-width="1" opacity=".3"/>
+        <circle class="bbl" cx="90" cy="260" r="3" fill="none" stroke="#1b3558" stroke-width="1" opacity=".4"/>
+        <circle class="bbl" cx="120" cy="254" r="2" fill="none" stroke="#1b3558" stroke-width="1" opacity=".3"/>
+        <rect x="160" y="184" width="68" height="92" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="194" y="194" text-anchor="middle" fill="#1b3558" font-size="6">DÉCANTEUR</text>
+        <rect x="160" y="220" width="68" height="56" fill="#0e2a50" opacity=".2"/>
+        <rect id="sv-comp-box" x="12" y="275" width="70" height="13" rx="2" fill="#040c18" stroke="#1b3558"/>
+        <text x="47" y="285" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">COMP. FPZ R-30 MD</text>
+        <circle id="svp03" cx="176" cy="278" r="9" fill="#040c18" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="176" y="281" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">P03</text>
+        <circle id="svp04" cx="202" cy="278" r="9" fill="#040c18" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="202" y="281" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">P04</text>
 
-        <!-- CUVE ENTERRÉE + P05 -->
-        <rect x="245" y="152" width="82" height="72" rx="4" fill="#0b1a30" stroke="#1b3558"/>
-        <text x="286" y="163" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700">CUVE ENT.</text>
-        <rect x="252" y="170" width="32" height="46" rx="2" fill="#040c18" stroke="#1b3558"/>
-        <rect id="sv-ent-fill" x="252" y="195" width="32" height="21" fill="#1a4080" opacity=".8"/>
-        <circle id="svp05" cx="296" cy="188" r="9" fill="#040c18" stroke="#00e676" stroke-width="1.5"/>
-        <text x="296" y="191" text-anchor="middle" fill="#00e676" font-size="5.5" font-weight="700">P05</text>
+        <!-- CUVE ENT -->
+        <rect x="245" y="168" width="82" height="72" rx="4" fill="#0b1a30" stroke="#1b3558"/>
+        <text x="286" y="179" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700">CUVE ENT.</text>
+        <rect x="252" y="186" width="32" height="46" rx="2" fill="#040c18" stroke="#1b3558"/>
+        <rect id="sv-ent" x="252" y="210" width="32" height="22" fill="#1a4080" opacity=".75"/>
+        <circle id="svp05" cx="296" cy="204" r="9" fill="#040c18" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="296" y="207" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">P05</text>
 
-        <!-- TRAITEMENT TERTIAIRE -->
-        <rect x="245" y="234" width="310" height="186" rx="4" fill="#0b1a30" stroke="#1b3558"/>
-        <text x="400" y="246" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700" letter-spacing="1">TRAITEMENT TERTIAIRE</text>
-        <!-- Cuve surface -->
-        <rect x="252" y="252" width="44" height="58" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <text x="274" y="262" text-anchor="middle" fill="#1b3558" font-size="6">CUVE S.</text>
-        <rect id="sv-sur-fill" x="252" y="275" width="44" height="35" fill="#1a4080" opacity=".75"/>
-        <circle id="svp06" cx="262" cy="322" r="9" fill="#040c18" stroke="#00e676" stroke-width="1.5"/>
-        <text x="262" y="325" text-anchor="middle" fill="#00e676" font-size="5.5" font-weight="700">P06</text>
-        <circle id="svp07" cx="284" cy="322" r="9" fill="#040c18" stroke="#1b3558" stroke-width="1.5"/>
-        <text x="284" y="325" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">P07</text>
-        <!-- Filtre sable -->
-        <rect x="308" y="252" width="44" height="78" rx="3" fill="#040c18" stroke="#2a4a72" stroke-width="1.2"/>
-        <text x="330" y="263" text-anchor="middle" fill="#00e676" font-size="6">FILTRE</text>
-        <text x="330" y="271" text-anchor="middle" fill="#00e676" font-size="6">SABLE</text>
-        <rect x="312" y="278" width="36" height="16" rx="1" fill="#1a1200" opacity=".8"/>
-        <rect x="312" y="294" width="36" height="14" rx="1" fill="#0a180a" opacity=".8"/>
-        <text x="330" y="287" text-anchor="middle" fill="#7a6030" font-size="5">SILEX</text>
-        <text x="330" y="303" text-anchor="middle" fill="#2a5a2a" font-size="5">ANTHRACITE</text>
-        <text x="330" y="323" text-anchor="middle" fill="#00e676" font-size="5" id="svclack">FILTRATION</text>
-        <!-- Filtres anneaux -->
-        <rect x="364" y="252" width="40" height="42" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <text x="384" y="263" text-anchor="middle" fill="#1b3558" font-size="6">ANNEAUX</text>
-        <text x="384" y="275" text-anchor="middle" fill="#29b6f6" font-size="5">55µm / 25µm</text>
-        <!-- UV -->
-        <rect id="svuv-box" x="416" y="252" width="42" height="42" rx="3" fill="#040c18" stroke="#ce93d8" stroke-width="1.5"/>
-        <text x="437" y="264" text-anchor="middle" fill="#ce93d8" font-size="6" font-weight="700">UV 40W</text>
-        <circle cx="437" cy="278" r="8" fill="none" stroke="#ce93d8" stroke-width="1.5"/>
-        <text x="437" y="281" text-anchor="middle" fill="#ce93d8" font-size="6" font-weight="700" id="svuv-st">ON</text>
-        <!-- Pré-chlor -->
-        <rect x="252" y="342" width="60" height="36" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <text x="282" y="352" text-anchor="middle" fill="#243a58" font-size="6">PRÉ-CHLOR.</text>
-        <text x="282" y="368" text-anchor="middle" fill="#00e676" font-size="7.5" font-weight="700" id="svpre">AKL ON</text>
-        <!-- Post-chlor REDOX -->
-        <rect x="322" y="342" width="70" height="36" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <text x="357" y="352" text-anchor="middle" fill="#243a58" font-size="6">POST-CHLOR. REDOX</text>
-        <text x="357" y="369" text-anchor="middle" fill="#29b6f6" font-size="9" font-weight="700" font-family="monospace" id="svredox">748 mV</text>
-        <!-- Cuve finale -->
-        <rect id="sv-cfin-box" x="468" y="252" width="84" height="130" rx="4" fill="#040c18" stroke="#2a4a72" stroke-width="1.5"/>
-        <text x="510" y="263" text-anchor="middle" fill="#00e676" font-size="6" font-weight="700">CUVE TRAITÉE</text>
-        <rect id="sv-fin-fill" x="468" y="290" width="84" height="92" fill="#0e3020" opacity=".75"/>
-        <circle id="svp08" cx="480" cy="368" r="9" fill="#040c18" stroke="#00e5ff" stroke-width="1.5"/>
-        <text x="480" y="371" text-anchor="middle" fill="#00e5ff" font-size="5.5" font-weight="700">P08</text>
-        <text id="sv-fin-pct" x="510" y="340" text-anchor="middle" fill="#00e676" font-size="11" font-weight="700" font-family="monospace">45%</text>
+        <!-- TERTIAIRE -->
+        <rect x="245" y="250" width="310" height="185" rx="4" fill="#0b1a30" stroke="#1b3558"/>
+        <text x="400" y="261" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700" letter-spacing="1">TRAITEMENT TERTIAIRE</text>
+        <rect x="252" y="268" width="44" height="55" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="274" y="278" text-anchor="middle" fill="#1b3558" font-size="6">CUVE S.</text>
+        <rect id="sv-sur" x="252" y="290" width="44" height="33" fill="#1a4080" opacity=".7"/>
+        <circle id="svp06" cx="262" cy="335" r="9" fill="#040c18" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="262" y="338" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">P06</text>
+        <circle id="svp07" cx="284" cy="335" r="9" fill="#040c18" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="284" y="338" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">P07</text>
+        <rect x="308" y="268" width="44" height="78" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="330" y="278" text-anchor="middle" fill="#243a58" font-size="6">FILTRE</text>
+        <text x="330" y="286" text-anchor="middle" fill="#243a58" font-size="6">SABLE</text>
+        <rect x="364" y="268" width="40" height="42" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="384" y="280" text-anchor="middle" fill="#1b3558" font-size="6">ANNEAUX</text>
+        <rect id="svuv-box" x="416" y="268" width="42" height="42" rx="3" fill="#040c18" stroke="#1b3558" stroke-width="1"/>
+        <text x="437" y="280" text-anchor="middle" fill="#1b3558" font-size="6" font-weight="700">UV 40W</text>
+        <circle cx="437" cy="294" r="8" fill="none" stroke="#1b3558" stroke-width="1"/>
+        <text id="svuv-st" x="437" y="297" text-anchor="middle" fill="#1b3558" font-size="6" font-weight="700">—</text>
+        <rect x="252" y="356" width="60" height="34" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="282" y="366" text-anchor="middle" fill="#243a58" font-size="6">PRÉ-CHLOR.</text>
+        <text id="svpre" x="282" y="380" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700">—</text>
+        <rect x="322" y="356" width="70" height="34" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="357" y="366" text-anchor="middle" fill="#243a58" font-size="6">POST-CHLOR. REDOX</text>
+        <text id="svredox" x="357" y="381" text-anchor="middle" fill="#243a58" font-size="9" font-weight="700" font-family="monospace">— mV</text>
+        <rect x="468" y="268" width="84" height="124" rx="4" fill="#040c18" stroke="#1b3558"/>
+        <text x="510" y="279" text-anchor="middle" fill="#243a58" font-size="6" font-weight="700">CUVE TRAITÉE</text>
+        <rect id="sv-fin" x="468" y="298" width="84" height="94" fill="#0e3020" opacity=".5"/>
+        <text id="sv-fin-pct" x="510" y="348" text-anchor="middle" fill="#243a58" font-size="11" font-weight="700" font-family="monospace">—%</text>
+        <circle id="svp08" cx="480" cy="378" r="9" fill="#040c18" stroke="#1b3558" stroke-width="1.5"/>
+        <text x="480" y="381" text-anchor="middle" fill="#243a58" font-size="5.5" font-weight="700">P08</text>
 
-        <!-- LIGNE BOUES -->
-        <rect x="5" y="280" width="130" height="100" rx="4" fill="#0b1a30" stroke="#1b3558"/>
-        <text x="70" y="291" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700">LIGNE BOUES</text>
-        <rect x="12" y="298" width="48" height="74" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <text x="36" y="308" text-anchor="middle" fill="#243a58" font-size="6">ÉPAISSIS.</text>
-        <rect x="12" y="322" width="48" height="50" rx="0 0 3 3" fill="#1a1000" opacity=".6"/>
-        <rect id="sv-vepais" x="16" y="364" width="18" height="6" rx="1" fill="#ff9800"/>
-        <rect x="68" y="298" width="60" height="74" rx="3" fill="#040c18" stroke="#1b3558"/>
-        <text x="98" y="308" text-anchor="middle" fill="#243a58" font-size="6">FILSA-02</text>
-        <ellipse cx="84" cy="334" rx="11" ry="21" fill="#0a180a" stroke="#1a5a1a"/>
-        <ellipse cx="104" cy="334" rx="11" ry="21" fill="#0a180a" stroke="#1a5a1a"/>
-        <text x="98" y="373" text-anchor="middle" fill="#00e676" font-size="6" font-weight="700" id="svfilsa">OK</text>
+        <!-- BOUES -->
+        <rect x="5" y="296" width="130" height="96" rx="4" fill="#0b1a30" stroke="#1b3558"/>
+        <text x="70" y="307" text-anchor="middle" fill="#243a58" font-size="7" font-weight="700">LIGNE BOUES</text>
+        <rect x="12" y="314" width="48" height="70" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="36" y="324" text-anchor="middle" fill="#243a58" font-size="6">ÉPAISSIS.</text>
+        <rect x="12" y="336" width="48" height="48" fill="#1a1000" opacity=".5"/>
+        <rect x="68" y="314" width="58" height="70" rx="3" fill="#040c18" stroke="#1b3558"/>
+        <text x="97" y="324" text-anchor="middle" fill="#243a58" font-size="6">FILSA-02</text>
+        <ellipse cx="83" cy="350" rx="10" ry="20" fill="#0a180a" stroke="#1a5a1a"/>
+        <ellipse cx="103" cy="350" rx="10" ry="20" fill="#0a180a" stroke="#1a5a1a"/>
+        <text id="svfilsa" x="97" y="387" text-anchor="middle" fill="#243a58" font-size="6" font-weight="700">—</text>
 
         <!-- FLOW LINES -->
-        <line x1="120" y1="40" x2="128" y2="40" stroke="#29b6f6" stroke-width="2" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="168" y1="49" x2="168" y2="58" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="168" y1="90" x2="168" y2="152" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="33" y1="130" x2="33" y2="152" stroke="#29b6f6" stroke-width="2" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="228" y1="196" x2="245" y2="196" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="228" y1="262" x2="245" y2="262" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="296" y1="294" x2="308" y2="280" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="352" y1="272" x2="364" y2="264" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="404" y1="270" x2="416" y2="270" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <line x1="458" y1="270" x2="468" y2="270" stroke="#29b6f6" stroke-width="1.5" class="fl-line" marker-end="url(#ma)"/>
-        <!-- boues -->
-        <line x1="202" y1="271" x2="202" y2="320" stroke="#ff9800" stroke-width="1.5" class="fl-slow" marker-end="url(#mo)"/>
-        <line x1="202" y1="320" x2="60" y2="320" stroke="#ff9800" stroke-width="1.5" class="fl-slow"/>
+        <line x1="120" y1="40" x2="128" y2="40" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-tamis"/>
+        <line x1="168" y1="49" x2="168" y2="58" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-t1"/>
+        <line x1="168" y1="90" x2="168" y2="168" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-t2"/>
+        <line x1="33" y1="143" x2="33" y2="168" stroke="#1b3558" stroke-width="2" class="fl-line" marker-end="url(#ma)" id="fl-p01"/>
+        <line x1="220" y1="210" x2="245" y2="210" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-r1"/>
+        <line x1="220" y1="278" x2="245" y2="278" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-r2"/>
+        <line x1="296" y1="308" x2="308" y2="290" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-f1"/>
+        <line x1="352" y1="284" x2="364" y2="278" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-f2"/>
+        <line x1="404" y1="282" x2="416" y2="282" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-uv"/>
+        <line x1="458" y1="282" x2="468" y2="282" stroke="#1b3558" stroke-width="1.5" class="fl-line" marker-end="url(#ma)" id="fl-fin"/>
+        <line x1="202" y1="287" x2="202" y2="340" stroke="#1b3558" stroke-width="1.5" class="fl-slow" marker-end="url(#mo)" id="fl-boues"/>
+        <line x1="202" y1="340" x2="60" y2="340" stroke="#1b3558" stroke-width="1.5" class="fl-slow" id="fl-boues2"/>
       </svg>
     </div>
   </div>
 
-  <!-- RIGHT summary -->
+  <!-- RIGHT SUMMARY -->
   <div class="p">
     <div class="ph">Résumé Process</div>
     <div class="pb">
-      <div class="ir"><span class="ik">Mode</span><span class="iv ok" id="s-mode">AUTO</span></div>
+      <div class="conn-banner" id="conn-msg2">⟳ En attente PLCSIM...</div>
+      <div class="ir"><span class="ik">Connexion PLC</span><span class="iv" id="s-conn">—</span></div>
+      <div class="ir"><span class="ik">Mode global</span><span class="iv" id="s-mode">—</span></div>
       <div class="ir"><span class="ik">Durée marche</span><span class="iv cy" id="s-up">00:00:00</span></div>
-      <div class="ir"><span class="ik">Pompes actives</span><span class="iv ok" id="s-pumps">—</span></div>
-      <div class="ir"><span class="ik">Compresseur</span><span class="iv ok" id="s-comp">MARCHE</span></div>
-      <div class="ir"><span class="ik">Débit relevage</span><span class="iv cy" id="s-debit">1.00 m³/h</span></div>
-      <div class="ir"><span class="ik">REDOX</span><span class="iv ok" id="s-redox">748 mV</span></div>
+      <div class="ir"><span class="ik">Pompes actives</span><span class="iv" id="s-pumps">—</span></div>
+      <div class="ir"><span class="ik">Compresseur</span><span class="iv" id="s-comp">—</span></div>
+      <div class="ir"><span class="ik">Débit relevage</span><span class="iv cy" id="s-debit">— m³/h</span></div>
+      <div class="ir"><span class="ik">REDOX</span><span class="iv" id="s-redox">— mV</span></div>
       <div class="ir"><span class="ik">Niv. Relevage</span><span class="iv blue" id="s-rel">—%</span></div>
-      <div class="ir"><span class="ik">Niv. Cuve Traitée</span><span class="iv blue" id="s-tr">—%</span></div>
-      <div class="ir"><span class="ik">UV 40W</span><span class="iv ok" id="s-uv">ON</span></div>
-      <div class="ir"><span class="ik">Pré-chloration</span><span class="iv ok" id="s-pre">ON</span></div>
-      <div class="ir"><span class="ik">Post-chloration</span><span class="iv ok" id="s-post">ON</span></div>
-      <div class="ir"><span class="ik">FILSA</span><span class="iv ok" id="s-filsa2">OK</span></div>
+      <div class="ir"><span class="ik">Niv. Traitée</span><span class="iv blue" id="s-tr">—%</span></div>
+      <div class="ir"><span class="ik">UV 40W</span><span class="iv" id="s-uv">—</span></div>
+      <div class="ir"><span class="ik">Pré-chloration</span><span class="iv" id="s-pre">—</span></div>
+      <div class="ir"><span class="ik">Post-chloration</span><span class="iv" id="s-post">—</span></div>
+      <div class="ir"><span class="ik">FILSA</span><span class="iv" id="s-filsa2">—</span></div>
       <div class="ir"><span class="ik">Alarmes actives</span><span class="iv" id="s-alm">0</span></div>
       <div style="flex:1;min-height:6px"></div>
-      <div style="font-size:9px;color:var(--t3);margin-bottom:3px;letter-spacing:.06em">REDOX 10 MIN</div>
+      <div style="font-size:9px;color:var(--t3);margin-bottom:3px">REDOX HISTORIQUE</div>
       <div style="position:relative;height:55px"><canvas id="mc1" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>
-      <div style="font-size:9px;color:var(--t3);margin-top:5px;margin-bottom:3px;letter-spacing:.06em">DÉBIT RELEVAGE</div>
+      <div style="font-size:9px;color:var(--t3);margin-top:5px;margin-bottom:3px">DÉBIT RELEVAGE</div>
       <div style="position:relative;height:45px"><canvas id="mc2" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>
     </div>
   </div>
 </div>
 
-<!-- ══ S2: POMPES ══ -->
+<!-- ══ S2: ÉQUIPEMENTS ══ -->
 <div class="sc" id="s2">
-  <div class="p" id="pc-p01"><div class="ph">P01 – Relevage</div><div class="pb" id="pb-p01"></div></div>
-  <div class="p" id="pc-p02"><div class="ph">P02 – Relevage</div><div class="pb" id="pb-p02"></div></div>
-  <div class="p" id="pc-tamis"><div class="ph">Tamis TA-RO MINI</div><div class="pb" id="pb-tamis"></div></div>
-  <div class="p" id="pc-comp"><div class="ph">Compresseur FPZ R-30 MD</div><div class="pb" id="pb-comp"></div></div>
-  <div class="p" id="pc-p03"><div class="ph">P03 – Recirculation Boues</div><div class="pb" id="pb-p03"></div></div>
-  <div class="p"><div class="ph">P04/P05/P06/P07/P08 + UV</div><div class="pb" id="pb-rest" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:5px;overflow:hidden"></div></div>
+  <div class="p"><div class="ph">P01 – Relevage</div><div class="pb" id="ec-p01"></div></div>
+  <div class="p"><div class="ph">P02 – Relevage</div><div class="pb" id="ec-p02"></div></div>
+  <div class="p"><div class="ph">Tamis TA-RO MINI</div><div class="pb" id="ec-tamis"></div></div>
+  <div class="p"><div class="ph">Compresseur FPZ</div><div class="pb" id="ec-comp"></div></div>
+  <div class="p"><div class="ph">P03 – Recirculation</div><div class="pb" id="ec-p03"></div></div>
+  <div class="p"><div class="ph">P04 – Extraction</div><div class="pb" id="ec-p04"></div></div>
+  <div class="p"><div class="ph">P05 – Cuve Enterrée</div><div class="pb" id="ec-p05"></div></div>
+  <div class="p"><div class="ph">P06 – Filtration</div><div class="pb" id="ec-p06"></div></div>
+  <div class="p"><div class="ph">P07 – Filtration</div><div class="pb" id="ec-p07"></div></div>
+  <div class="p"><div class="ph">P08 + UV + Chlor.</div><div class="pb" id="ec-p08"></div></div>
 </div>
 
 <!-- ══ S3: RELEVAGE & DÉBIT ══ -->
 <div class="sc" id="s3">
   <div class="p">
-    <div class="ph">Poste de Relevage — Contrôle Débit <span>AMAPORTER 500 ND · Alternance automatique</span></div>
-    <div class="pb" style="gap:12px">
-
-      <!-- Debit hero -->
-      <div class="debit-hero">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:10px;font-weight:700;color:var(--C);text-transform:uppercase;letter-spacing:.08em">⬆ Débit Poste Relevage</div>
-          <span id="debit-badge" style="font-size:9px;padding:2px 8px;border-radius:2px;background:rgba(0,230,118,.1);color:var(--G);border:1px solid #005522;font-family:monospace">AUTO</span>
-        </div>
-        <!-- Arc SVG -->
-        <div style="display:flex;justify-content:center">
-          <svg viewBox="0 0 240 138" width="240" height="138">
-            <path d="M 24 120 A 96 96 0 0 1 216 120" fill="none" stroke="#0f2040" stroke-width="16" stroke-linecap="round"/>
-            <path id="arc" d="M 24 120 A 96 96 0 0 1 216 120" fill="none" stroke="#00e5ff" stroke-width="16" stroke-linecap="round" stroke-dasharray="302" stroke-dashoffset="181"/>
-            <text x="17" y="132" fill="#243a58" font-size="9" font-family="monospace">0</text>
-            <text x="112" y="32" text-anchor="middle" fill="#243a58" font-size="9" font-family="monospace">1.5</text>
-            <text x="207" y="132" fill="#243a58" font-size="9" font-family="monospace">3</text>
-            <text id="arc-v" x="120" y="100" text-anchor="middle" fill="#00e5ff" font-size="36" font-weight="700" font-family="monospace">1.00</text>
-            <text x="120" y="116" text-anchor="middle" fill="#5a7fa8" font-size="11" font-family="monospace">m³/h</text>
-            <text id="arc-sp" x="120" y="130" text-anchor="middle" fill="#243a58" font-size="8" font-family="monospace">SP: 1.00 m³/h</text>
-          </svg>
-        </div>
-        <!-- Slider -->
-        <div style="display:flex;flex-direction:column;gap:5px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:10px;color:var(--t2)">Consigne débit</span>
-            <span id="sp-lbl" style="font-size:14px;font-weight:700;color:var(--C);font-family:monospace">1.00 m³/h</span>
-          </div>
-          <input type="range" min="0" max="30" value="10" step="1" id="dslider" oninput="setDebit(this.value)">
-          <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t3);font-family:monospace">
-            <span>0</span><span>0.75</span><span>1.50</span><span>2.25</span><span>3.00 m³/h</span>
-          </div>
-        </div>
-        <!-- Presets -->
-        <div style="display:flex;flex-direction:column;gap:4px">
-          <div style="font-size:9px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase">Préréglages</div>
-          <div class="presets">
-            <button class="pr" onclick="preset(3,'low')">LOW<br><span style="font-size:8px;font-family:monospace">0.3</span></button>
-            <button class="pr" onclick="preset(7,'eco')">ÉCO<br><span style="font-size:8px;font-family:monospace">0.7</span></button>
-            <button class="pr on" id="pr-nom" onclick="preset(10,'nom')">NOM<br><span style="font-size:8px;font-family:monospace">1.0</span></button>
-            <button class="pr" onclick="preset(18,'max')">MAX<br><span style="font-size:8px;font-family:monospace">1.8</span></button>
-            <button class="pr" onclick="preset(0,'stp')">STOP<br><span style="font-size:8px;font-family:monospace">0.0</span></button>
-          </div>
-        </div>
-        <!-- Stats -->
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px">
-          <div class="sbox"><div class="sval" id="st-pv">1.00</div><div class="slbl">m³/h mesuré</div></div>
-          <div class="sbox"><div class="sval ok" id="st-sp">1.00</div><div class="slbl">m³/h consigne</div></div>
-          <div class="sbox"><div class="sval" style="color:var(--O)" id="st-vol">0.0</div><div class="slbl">m³ volume</div></div>
-          <div class="sbox"><div class="sval" style="color:var(--P)" id="st-pmp">P01</div><div class="slbl">pompe active</div></div>
-        </div>
-      </div>
-
+    <div class="ph">Poste de Relevage — Données Réelles PLCSIM</div>
+    <div class="pb" style="gap:10px">
       <!-- Flotteurs -->
       <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:10px">
-        <div style="font-size:9px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">État Flotteurs BIP-STOP</div>
-        <div class="frow" id="frow"></div>
-        <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
-          <div class="ir"><span class="ik">Alternance active</span><span class="iv cy" id="alt-lbl">P01</span></div>
-          <div class="ir"><span class="ik">Nb démarrages P01</span><span class="iv blue" id="nd-p01">0</span></div>
-          <div class="ir"><span class="ik">Nb démarrages P02</span><span class="iv blue" id="nd-p02">0</span></div>
-        </div>
+        <div style="font-size:9px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">État Flotteurs BIP-STOP — données PLCSIM</div>
+        <div class="fl-grid" id="frow"></div>
       </div>
-
-      <!-- Courbe débit -->
+      <!-- Stats relevage -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+        <div class="sb"><div class="sv" id="st-p01" style="font-size:16px">—</div><div class="sl">P01 État</div></div>
+        <div class="sb"><div class="sv" id="st-p02" style="font-size:16px">—</div><div class="sl">P02 État</div></div>
+        <div class="sb"><div class="sv ok" id="st-alt">—</div><div class="sl">Alternance</div></div>
+        <div class="sb"><div class="sv" style="color:var(--O)" id="st-vol">0.0</div><div class="sl">m³ traité</div></div>
+      </div>
+      <!-- Débit chart -->
       <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:10px;flex:1">
-        <div style="font-size:9px;color:var(--t3);letter-spacing:.06em;margin-bottom:6px">DÉBIT HISTORIQUE 10 MIN</div>
-        <div style="position:relative;height:80px"><canvas id="ch-deb" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>
+        <div style="font-size:9px;color:var(--t3);margin-bottom:6px;letter-spacing:.06em">DÉBIT RELEVAGE HISTORIQUE 10 MIN (données PLCSIM)</div>
+        <div style="position:relative;height:100px"><canvas id="ch-deb" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>
+      </div>
+      <!-- Info pompes -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:8px">
+          <div style="font-size:9px;font-weight:700;color:var(--t2);margin-bottom:6px">P01 AMAPORTER 500 ND</div>
+          <div class="ir"><span class="ik">FB Marche</span><span class="iv" id="si-p01-m">—</span></div>
+          <div class="ir"><span class="ik">FB Défaut</span><span class="iv" id="si-p01-d">—</span></div>
+          <div class="ir"><span class="ik">Commande</span><span class="iv" id="si-p01-r">—</span></div>
+        </div>
+        <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:8px">
+          <div style="font-size:9px;font-weight:700;color:var(--t2);margin-bottom:6px">P02 AMAPORTER 500 ND</div>
+          <div class="ir"><span class="ik">FB Marche</span><span class="iv" id="si-p02-m">—</span></div>
+          <div class="ir"><span class="ik">FB Défaut</span><span class="iv" id="si-p02-d">—</span></div>
+          <div class="ir"><span class="ik">Commande</span><span class="iv" id="si-p02-r">—</span></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- RIGHT: P01 P02 + tank -->
+  <!-- RIGHT: tank + infos -->
   <div style="display:flex;flex-direction:column;gap:7px">
-    <div class="p" style="flex:1"><div class="ph">P01 — Pompe Relevage</div><div class="pb" id="pb-p01-r"></div></div>
-    <div class="p" style="flex:1"><div class="ph">P02 — Pompe Relevage</div><div class="pb" id="pb-p02-r"></div></div>
-    <div class="p" style="flex:none;height:160px">
-      <div class="ph">Niveau Réservoir Relevage <span id="rel-st-badge">N4 ATTEINT</span></div>
-      <div class="pb" style="flex-direction:row;align-items:center;gap:14px;justify-content:center">
+    <div class="p" style="flex:1">
+      <div class="ph">Niveau Réservoir Relevage <span class="ph-v" id="rel-badge">—</span></div>
+      <div class="pb" style="align-items:center;flex-direction:row;gap:14px;justify-content:center">
         <div class="tw">
-          <div class="tout" style="height:90px;width:60px">
+          <div class="tout" style="height:110px;width:65px">
             <div id="tf-rel" class="tfill" style="height:0%;background:#1a5090"></div>
-            <!-- seuil lines -->
             <div style="position:absolute;top:8%;left:0;right:0;border-top:1px dashed #ff3d57;opacity:.7"></div>
             <div style="position:absolute;top:40%;left:0;right:0;border-top:1px dashed #29b6f6;opacity:.8"></div>
             <div style="position:absolute;top:72%;left:0;right:0;border-top:1px dashed #ff9800;opacity:.5"></div>
           </div>
-          <div class="tpct cy" id="tp-rel">0%</div>
-          <div class="tlbl">Relevage<br>6 000 L</div>
+          <div class="tpct cy" id="tp-rel">—%</div>
+          <div class="tlbl">6 000 L</div>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;gap:4px">
-          <div class="ir"><span class="ik">N5 MAX/alarme</span><span class="iv" id="ir-n5">OK</span></div>
+          <div class="ir"><span class="ik">N5 MAX alarme</span><span class="iv" id="ir-n5">—</span></div>
           <div class="ir"><span class="ik">N4 démarrage</span><span class="iv" id="ir-n4">—</span></div>
-          <div class="ir"><span class="ik">N2 arrêt (redond.)</span><span class="iv" id="ir-n2">OK</span></div>
-          <div class="ir"><span class="ik">N1 arrêt sécu.</span><span class="iv" id="ir-n1">OK</span></div>
-          <div class="ir"><span class="ik">Pompe auto</span><span class="iv cy" id="ir-alt">P01 actif</span></div>
+          <div class="ir"><span class="ik">N2 arrêt redond.</span><span class="iv" id="ir-n2">—</span></div>
+          <div class="ir"><span class="ik">N1 arrêt sécu.</span><span class="iv" id="ir-n1">—</span></div>
         </div>
+      </div>
+    </div>
+    <div class="p" style="flex:1">
+      <div class="ph">Données Analogiques PLCSIM</div>
+      <div class="pb">
+        <div class="ir"><span class="ik">REDOX brut (IW100)</span><span class="iv cy" id="si-redox-raw">—</span></div>
+        <div class="ir"><span class="ik">REDOX converti</span><span class="iv cy" id="si-redox-conv">— mV</span></div>
+        <div class="ir"><span class="ik">Débit brut (IW102)</span><span class="iv blue" id="si-deb-raw">—</span></div>
+        <div class="ir"><span class="ik">Débit converti</span><span class="iv blue" id="si-deb-conv">— m³/h</span></div>
+        <div class="ir"><span class="ik">Urgence générale</span><span class="iv" id="si-eu">—</span></div>
+        <div class="ir"><span class="ik">Mode AUTO</span><span class="iv" id="si-auto">—</span></div>
       </div>
     </div>
   </div>
@@ -501,47 +449,41 @@ canvas.ch{position:absolute;inset:0}
 <!-- ══ S4: NIVEAUX ══ -->
 <div class="sc" id="s4">
   <div class="p">
-    <div class="ph">Niveaux Cuves — Temps Réel</div>
+    <div class="ph">Niveaux Cuves — Données PLCSIM</div>
     <div class="pb">
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <div class="mg" style="flex:1"><div class="mgv" id="mg-rel">60 <small style="font-size:11px">%</small></div><div class="mgl">Poste Relevage (6 000L)</div><div class="mgbar"><div class="mgf" id="mf-rel" style="width:60%;background:var(--B)"></div></div></div>
-        <div class="mg" style="flex:1"><div class="mgv" id="mg-ent">50 <small style="font-size:11px">%</small></div><div class="mgl">Cuve Enterrée (1 000L)</div><div class="mgbar"><div class="mgf" id="mf-ent" style="width:50%;background:var(--B)"></div></div></div>
-        <div class="mg" style="flex:1"><div class="mgv" id="mg-sur">55 <small style="font-size:11px">%</small></div><div class="mgl">Cuve Surface (1 000L)</div><div class="mgbar"><div class="mgf" id="mf-sur" style="width:55%;background:var(--C)"></div></div></div>
-        <div class="mg" style="flex:1"><div class="mgv" id="mg-fin">45 <small style="font-size:11px">%</small></div><div class="mgl">Cuve Traitée (25 000L)</div><div class="mgbar"><div class="mgf" id="mf-fin" style="width:45%;background:var(--G)"></div></div></div>
-        <div class="mg" style="flex:1"><div class="mgv" id="mg-bou">30 <small style="font-size:11px">%</small></div><div class="mgl">Épaississeur</div><div class="mgbar"><div class="mgf" id="mf-bou" style="width:30%;background:var(--O)"></div></div></div>
-        <div class="mg" style="flex:1"><div class="mgv" id="mg-rdx">748 <small style="font-size:11px">mV</small></div><div class="mgl">REDOX (650–850 mV)</div><div class="mgbar"><div class="mgf" id="mf-rdx" style="width:60%;background:var(--G)"></div></div></div>
+        <div class="mg" style="flex:1"><div class="mgv" id="mg-rel">— <small style="font-size:11px">%</small></div><div class="mgl">Poste Relevage</div><div class="mgbar"><div class="mgf" id="mf-rel" style="width:0%;background:var(--B)"></div></div></div>
+        <div class="mg" style="flex:1"><div class="mgv" id="mg-ent">— <small style="font-size:11px">%</small></div><div class="mgl">Cuve Enterrée</div><div class="mgbar"><div class="mgf" id="mf-ent" style="width:0%;background:var(--B)"></div></div></div>
+        <div class="mg" style="flex:1"><div class="mgv" id="mg-sur">— <small style="font-size:11px">%</small></div><div class="mgl">Cuve Surface</div><div class="mgbar"><div class="mgf" id="mf-sur" style="width:0%;background:var(--C)"></div></div></div>
+        <div class="mg" style="flex:1"><div class="mgv" id="mg-fin">— <small style="font-size:11px">%</small></div><div class="mgl">Cuve Traitée</div><div class="mgbar"><div class="mgf" id="mf-fin" style="width:0%;background:var(--G)"></div></div></div>
+        <div class="mg" style="flex:1"><div class="mgv" id="mg-rdx">— <small style="font-size:11px">mV</small></div><div class="mgl">REDOX (650–850)</div><div class="mgbar"><div class="mgf" id="mf-rdx" style="width:0%;background:var(--G)"></div></div></div>
       </div>
       <!-- Tanks visual -->
-      <div style="display:flex;justify-content:space-around;align-items:flex-end;flex:1;padding:10px 0;min-height:160px">
-        <div class="tw"><div class="tout" style="height:110px;width:56px"><div id="tf2-rel" class="tfill" style="height:0%;background:#1a5090"></div><div style="position:absolute;top:40%;left:0;right:0;border-top:1px dashed #29b6f6;opacity:.8"></div></div><div class="tpct" id="tp2-rel" style="color:var(--B)">0%</div><div class="tlbl">Relevage</div></div>
-        <div class="tw"><div class="tout" style="height:80px;width:44px"><div id="tf2-ent" class="tfill" style="height:50%;background:#1a4080"></div></div><div class="tpct" id="tp2-ent" style="color:var(--B)">50%</div><div class="tlbl">Cuve Ent.</div></div>
-        <div class="tw"><div class="tout" style="height:80px;width:44px"><div id="tf2-sur" class="tfill" style="height:55%;background:#1a4080"></div></div><div class="tpct" id="tp2-sur" style="color:var(--C)">55%</div><div class="tlbl">Surface</div></div>
-        <div class="tw"><div class="tout" style="height:110px;width:56px"><div id="tf2-fin" class="tfill" style="height:45%;background:#0e3020"></div></div><div class="tpct" id="tp2-fin" style="color:var(--G)">45%</div><div class="tlbl">Traitée</div></div>
-        <div class="tw"><div class="tout" style="height:70px;width:44px"><div id="tf2-bou" class="tfill" style="height:30%;background:#1a1000"></div></div><div class="tpct" id="tp2-bou" style="color:var(--O)">30%</div><div class="tlbl">Épaissis.</div></div>
+      <div style="display:flex;justify-content:space-around;align-items:flex-end;flex:1;padding:10px 0;min-height:150px">
+        <div class="tw"><div class="tout" style="height:110px;width:56px"><div id="tf2-rel" class="tfill" style="height:0%;background:#1a5090"></div><div style="position:absolute;top:40%;left:0;right:0;border-top:1px dashed #29b6f6;opacity:.8"></div></div><div class="tpct" id="tp2-rel" style="color:var(--B)">—%</div><div class="tlbl">Relevage<br>6 000L</div></div>
+        <div class="tw"><div class="tout" style="height:80px;width:44px"><div id="tf2-ent" class="tfill" style="height:0%;background:#1a4080"></div></div><div class="tpct" id="tp2-ent" style="color:var(--B)">—%</div><div class="tlbl">Cuve Ent.</div></div>
+        <div class="tw"><div class="tout" style="height:80px;width:44px"><div id="tf2-sur" class="tfill" style="height:0%;background:#1a4080"></div></div><div class="tpct" id="tp2-sur" style="color:var(--C)">—%</div><div class="tlbl">Surface</div></div>
+        <div class="tw"><div class="tout" style="height:110px;width:56px"><div id="tf2-fin" class="tfill" style="height:0%;background:#0e3020"></div></div><div class="tpct" id="tp2-fin" style="color:var(--G)">—%</div><div class="tlbl">Traitée<br>25 000L</div></div>
       </div>
       <!-- Charts -->
       <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:8px">
-        <div style="font-size:9px;color:var(--t3);margin-bottom:5px">TENDANCES NIVEAUX 10 MIN — <span style="color:var(--B)">━ Relevage</span>  <span style="color:var(--G)">━ Traitée</span>  <span style="color:var(--C)">━ Surface</span></div>
+        <div style="font-size:9px;color:var(--t3);margin-bottom:5px">TENDANCES — <span style="color:var(--B)">━ Relevage</span> <span style="color:var(--G)">━ Traitée</span> <span style="color:var(--C)">━ Surface</span></div>
         <div style="position:relative;height:70px"><canvas id="ch-niv" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>
       </div>
     </div>
   </div>
   <div class="p">
     <div class="ph">Tendances Analytiques</div>
-    <div class="pb" style="gap:10px">
+    <div class="pb" style="gap:8px">
       <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:8px">
-        <div style="font-size:9px;color:var(--t3);margin-bottom:5px">REDOX POST-CHLORATION (mV)</div>
+        <div style="font-size:9px;color:var(--t3);margin-bottom:5px">REDOX (mV) — seuils 650/850</div>
         <div style="position:relative;height:80px"><canvas id="ch-rdx" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>
       </div>
-      <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:8px">
-        <div style="font-size:9px;color:var(--t3);margin-bottom:5px">DÉBIT FILTRATION (m³/h)</div>
-        <div style="position:relative;height:80px"><canvas id="ch-deb2" style="position:absolute;inset:0;width:100%;height:100%"></canvas></div>
-      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-        <div class="sbox"><div class="sval" style="color:var(--G)" id="kp-run">7</div><div class="slbl">Équip. actifs</div></div>
-        <div class="sbox"><div class="sval" style="color:var(--C)" id="kp-deb">1.00</div><div class="slbl">m³/h débit</div></div>
-        <div class="sbox"><div class="sval" style="color:var(--O)" id="kp-vol">0.0</div><div class="slbl">m³ traité</div></div>
-        <div class="sbox"><div class="sval" style="color:var(--B)" id="kp-rdx">748</div><div class="slbl">mV REDOX</div></div>
+        <div class="sb"><div class="sv ok" id="kp-run">—</div><div class="sl">Équip. actifs</div></div>
+        <div class="sb"><div class="sv cy" id="kp-rdx">—</div><div class="sl">mV REDOX</div></div>
+        <div class="sb"><div class="sv" style="color:var(--O)" id="kp-vol">0.0</div><div class="sl">m³ traité total</div></div>
+        <div class="sb"><div class="sv" style="color:var(--P)" id="kp-alm">0</div><div class="sl">Alarmes actives</div></div>
       </div>
     </div>
   </div>
@@ -566,10 +508,10 @@ canvas.ch{position:absolute;inset:0}
     <div class="ph">Statistiques</div>
     <div class="pb">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-        <div class="sbox"><div class="sval bad" id="st-crit">0</div><div class="slbl">Critiques</div></div>
-        <div class="sbox"><div class="sval warn" id="st-warn">0</div><div class="slbl">Attention</div></div>
-        <div class="sbox"><div class="sval" style="color:var(--t2)" id="st-ack">0</div><div class="slbl">Acquittées</div></div>
-        <div class="sbox"><div class="sval ok" id="st-ok">0</div><div class="slbl">Normalisées</div></div>
+        <div class="sb"><div class="sv bad" id="st-crit">0</div><div class="sl">Critiques</div></div>
+        <div class="sb"><div class="sv warn" id="st-warn">0</div><div class="sl">Attention</div></div>
+        <div class="sb"><div class="sv" style="color:var(--t2)" id="st-ack">0</div><div class="sl">Acquittées</div></div>
+        <div class="sb"><div class="sv ok" id="st-ok">0</div><div class="sl">Normalisées</div></div>
       </div>
       <div style="font-size:9px;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Par équipement</div>
       <div id="alm-eq" style="display:flex;flex-direction:column;gap:3px;overflow-y:auto"></div>
@@ -581,43 +523,48 @@ canvas.ch{position:absolute;inset:0}
 
 <!-- STATUS BAR -->
 <div class="sbar">
-  <div class="si"><span class="sdot" style="background:var(--G)"></span>CPU: S7-1200 1214C DC/DC/DC</div>
+  <div class="si"><span class="sdot" id="plc-dot" style="background:var(--t3)"></span>CPU: S7-1200 1214C DC/DC/DC</div>
   <div class="si">SW: V3.0</div>
   <div class="si" id="sb-up">⏱ 00:00:00</div>
-  <div class="si" id="sb-q">Q: — m³/h</div>
-  <div class="si" id="sb-rdx">REDOX: 748 mV</div>
+  <div class="si" id="sb-conn" style="color:var(--O)">⟳ Attente PLC</div>
+  <div class="si" id="sb-last">Dernier update: —</div>
   <div class="si">LafargeHolcim Agadir · SINPEC/SALHER</div>
-  <div class="si" id="sb-scan">Cycle: 500ms</div>
 </div>
 
 </div><!-- root -->
 
 <script>
-// ══ STATE ══════════════════════════════════════════
-const P={
-  p01:{n:'P01',lbl:'P01 – Relevage',   mdl:'AMAPORTER 500 ND', run:true, mode:'auto',fault:false,lock:false,kw:0.55,rpm:1450,starts:0},
-  p02:{n:'P02',lbl:'P02 – Relevage',   mdl:'AMAPORTER 500 ND', run:false,mode:'auto',fault:false,lock:false,kw:0.55,rpm:0,starts:0},
-  tamis:{n:'TAMIS',lbl:'Tamis TA-RO',  mdl:'Moteur 0.12kW',    run:true, mode:'auto',fault:false,lock:false,kw:0.12,rpm:960,starts:0},
-  comp:{n:'COMP',lbl:'Compresseur',    mdl:'FPZ R-30 MD 1.1kW',run:true, mode:'auto',fault:false,lock:false,kw:1.10,rpm:2900,starts:0},
-  p03:{n:'P03',lbl:'P03 – Recirc.',    mdl:'AMAPORTER 500 ND', run:false,mode:'auto',fault:false,lock:false,kw:0.55,rpm:0,starts:0},
-  p04:{n:'P04',lbl:'P04 – Extract.',   mdl:'AMAPORTER 500 ND', run:false,mode:'auto',fault:false,lock:false,kw:0.55,rpm:0,starts:0},
-  p05:{n:'P05',lbl:'P05 – Cuve Ent.',  mdl:'AMAPORTER 500 ND', run:true, mode:'auto',fault:false,lock:false,kw:0.55,rpm:1450,starts:0},
-  p06:{n:'P06',lbl:'P06 – Filtration', mdl:'COMPACT A8 0.6kW', run:true, mode:'auto',fault:false,lock:false,kw:0.60,rpm:2850,starts:0},
-  p07:{n:'P07',lbl:'P07 – Filtration', mdl:'COMPACT A8 0.6kW', run:false,mode:'auto',fault:false,lock:false,kw:0.60,rpm:0,starts:0},
-  p08:{n:'P08',lbl:'P08 – Recirc.',    mdl:'COMPACT A4 0.3kW', run:true, mode:'auto',fault:false,lock:false,kw:0.30,rpm:2850,starts:0},
+// ══ STATE — UNIQUEMENT DONNÉES PLCSIM ══════════════
+// Aucune simulation ! Tout vient de PLCSIM via Socket.IO
+const D = {
+  // Sorties PLC (ce que l'automate commande)
+  P01_Run: false, P02_Run: false,
+  Tamis_Run: false, Tamis_EV: false,
+  Compresseur: false,
+  P03_Run: false, P04_Run: false, P05_Run: false,
+  P06_Run: false, P07_Run: false, P08_Run: false,
+  UV_Run: false, DosPreChlor: false, DosPostChlor: false,
+  Klaxon: false, Voyant_Alarme: false, Voyant_Marche_General: false,
+  Voyant_P01_Defaut: false, Voyant_P02_Defaut: false,
+  Vanne_NO: false, Vanne_NF: false, Vanne_Epais: false,
+  // Entrées PLC (capteurs)
+  N1: false, N2: false, N4: false, N5: false,
+  EU: false, ModeAuto: false,
 };
-const S={
-  tick:0,elapsed:16200,gRun:true,
-  debit:1.0,debitSP:1.0,volTotal:0,
-  redox:748,
-  nRel:0,nEnt:50,nSur:55,nFin:45,nBou:30,
-  dernierePompe:1,
-  alarms:[],
-  hRdx:[],hDeb:[],hRel:[],hFin:[],hSur:[],
+
+const S = {
+  connected: false,
+  lastUpdate: null,
+  elapsed: 0,
+  volTotal: 0,
+  alarms: [],
+  hRdx: [], hDeb: [], hRel: [], hFin: [], hSur: [],
+  debitVal: 0, redoxVal: 0,
+  nRel: 0, nFin: 0, nSur: 0, nEnt: 0,
 };
 
 // ══ HELPERS ════════════════════════════════════════
-const p2=n=>String(n).padStart(2,'0');
+const p2 = n => String(n).padStart(2,'0');
 function fmt(s){return p2(~~(s/3600))+':'+p2(~~(s%3600/60))+':'+p2(s%60)}
 function now(){const d=new Date();return p2(d.getHours())+':'+p2(d.getMinutes())+':'+p2(d.getSeconds())}
 function $(i){return document.getElementById(i)}
@@ -627,159 +574,78 @@ function set(id,v,cls){const e=$(id);if(!e)return;e.innerHTML=v;if(cls!==undefin
 function go(n,el){
   document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  $('s'+n).classList.add('on');el.classList.add('on');
-}
-
-// ══ DEBIT ══════════════════════════════════════════
-let presetId='nom';
-function setDebit(v){
-  S.debitSP=v/10;
-  $('sp-lbl').textContent=S.debitSP.toFixed(2)+' m³/h';
-  $('arc-sp').textContent='SP: '+S.debitSP.toFixed(2)+' m³/h';
-  $('st-sp').textContent=S.debitSP.toFixed(2);
-  document.querySelectorAll('.pr').forEach(p=>p.classList.remove('on'));
-  presetId='custom';
-}
-function preset(v,id){
-  $('dslider').value=v;setDebit(v);
-  document.querySelectorAll('.pr').forEach(p=>p.classList.remove('on'));
-  event.currentTarget.classList.add('on');
-  presetId=id;
-}
-function updateArc(v){
-  const max=3,len=302,off=len-(v/max)*len;
-  const a=$('arc');if(a)a.setAttribute('stroke-dashoffset',Math.max(0,Math.min(len,off)));
-  const av=$('arc-v');if(av)av.textContent=v.toFixed(2);
+  $('s'+n).classList.add('on'); el.classList.add('on');
 }
 
 // ══ ALARMS ═════════════════════════════════════════
-function alarm(msg,type='warn',eq='Système'){
-  S.alarms.unshift({t:now(),msg,type,eq,acked:false});
-  if(S.alarms.length>80)S.alarms.pop();
-  renderAlarms();updateAlmBadge();
+function alarm(msg, type='warn', eq='Système'){
+  // Éviter les doublons sur moins de 10s
+  const recent = S.alarms.find(a => a.msg === msg && !a.acked);
+  if(recent) return;
+  S.alarms.unshift({t:now(), msg, type, eq, acked:false});
+  if(S.alarms.length > 80) S.alarms.pop();
+  renderAlarms(); updateAlmBadge();
 }
-function ackAll(){S.alarms.forEach(a=>{if(!a.acked&&a.type!=='ok')a.acked=true;});renderAlarms();updateAlmBadge();alarm('Alarmes acquittées','ok','Opérateur');}
-function clearAcked(){S.alarms=S.alarms.filter(a=>!a.acked);renderAlarms();updateAlmBadge();}
+function ackAll(){
+  S.alarms.forEach(a=>{if(!a.acked && a.type!=='ok') a.acked=true;});
+  renderAlarms(); updateAlmBadge();
+  alarm('Alarmes acquittées par opérateur','ok','Opérateur');
+}
+function clearAcked(){
+  S.alarms = S.alarms.filter(a=>!a.acked);
+  renderAlarms(); updateAlmBadge();
+}
 function updateAlmBadge(){
-  const ac=S.alarms.filter(a=>!a.acked&&a.type!=='ok').length;
-  const b=$('a-badge');b.textContent=ac+' ALM';b.className='badge '+(ac>0?'br':'bw');
-  $('d5').className='tdot '+(ac>0?'r':'g');
-  $('alm-hd').textContent=ac+' active(s)';$('alm-hd').style.color=ac>0?'var(--R)':'var(--G)';
-  $('st-crit').textContent=S.alarms.filter(a=>a.type==='crit'&&!a.acked).length;
-  $('st-warn').textContent=S.alarms.filter(a=>a.type==='warn'&&!a.acked).length;
-  $('st-ack').textContent=S.alarms.filter(a=>a.acked).length;
-  $('st-ok').textContent=S.alarms.filter(a=>a.type==='ok').length;
-  set('s-alm',ac,ac>0?'bad':'ok');
+  const ac = S.alarms.filter(a=>!a.acked && a.type!=='ok').length;
+  $('a-badge').textContent = ac+' ALM';
+  $('a-badge').className = 'badge '+(ac>0?'br':'bw');
+  $('d5').className = 'tdot '+(ac>0?'r':'g');
+  $('alm-hd').textContent = ac+' active(s)';
+  $('alm-hd').style.color = ac>0?'var(--R)':'var(--G)';
+  $('st-crit').textContent = S.alarms.filter(a=>a.type==='crit'&&!a.acked).length;
+  $('st-warn').textContent = S.alarms.filter(a=>a.type==='warn'&&!a.acked).length;
+  $('st-ack').textContent = S.alarms.filter(a=>a.acked).length;
+  $('st-ok').textContent = S.alarms.filter(a=>a.type==='ok').length;
+  set('s-alm', ac, ac>0?'bad':'ok');
+  $('kp-alm').textContent = ac;
 }
 function renderAlarms(){
-  const tb=$('alm-body');if(!tb)return;
-  tb.innerHTML=S.alarms.slice(0,60).map(a=>{
-    const cl=a.acked?'aack':a.type==='crit'?'acr':a.type==='ok'?'aok':'aw';
-    const dot=a.type==='crit'?'var(--R)':a.type==='ok'?'var(--G)':'var(--O)';
-    const pri=a.type==='crit'?'CRITIQUE':a.type==='ok'?'NORMAL':'ATTENTION';
-    return`<tr><td>${a.t}</td><td class="${cl}">${pri}</td><td class="${cl}"><span style="width:6px;height:6px;border-radius:50%;background:${dot};display:inline-block;margin-right:5px;vertical-align:middle"></span>${a.msg}</td><td style="color:${a.acked?'var(--t3)':'var(--O)'}">${a.acked?'✓ ACQ':'⚠ ACTIF'}</td></tr>`;
+  const tb = $('alm-body'); if(!tb) return;
+  tb.innerHTML = S.alarms.slice(0,60).map(a=>{
+    const cl = a.acked?'aack':a.type==='crit'?'acr':a.type==='ok'?'aok':'aw';
+    const dot = a.type==='crit'?'var(--R)':a.type==='ok'?'var(--G)':'var(--O)';
+    const pri = a.type==='crit'?'CRITIQUE':a.type==='ok'?'NORMAL':'ATTENTION';
+    return`<tr><td>${a.t}</td><td class="${cl}">${pri}</td>
+      <td class="${cl}"><span style="width:6px;height:6px;border-radius:50%;background:${dot};display:inline-block;margin-right:5px;vertical-align:middle"></span>${a.msg}</td>
+      <td style="color:${a.acked?'var(--t3)':'var(--O)'}">${a.acked?'✓ ACQ':'⚠ ACTIF'}</td></tr>`;
   }).join('');
   const byEq={};
   S.alarms.filter(a=>!a.acked&&a.type!=='ok').forEach(a=>{byEq[a.eq]=(byEq[a.eq]||0)+1;});
-  $('alm-eq').innerHTML=Object.entries(byEq).map(([k,v])=>
-    `<div style="display:flex;justify-content:space-between;font-size:10px;padding:3px 0;border-bottom:1px solid rgba(27,53,88,.4)"><span style="color:var(--t2)">${k}</span><span style="color:var(--R);font-family:monospace;font-weight:700">${v}</span></div>`
-  ).join('')||'<div style="font-size:10px;color:var(--t3);padding:10px">Aucune alarme active</div>';
-}
-
-// ══ PUMP LOGIC ═════════════════════════════════════
-function manStart(id){
-  const p=P[id];
-  if(!p.run)p.starts++;
-  p.run=true;p.mode='man';p.lock=true;
-  alarm(p.lbl+' démarrée manuellement','ok',p.n);renderPumps();
-}
-function manStop(id){
-  const p=P[id];p.run=false;p.mode='man';p.lock=true;
-  alarm(p.lbl+' arrêtée manuellement','warn',p.n);renderPumps();
-}
-function setAuto(id){
-  const p=P[id];p.mode='auto';p.lock=false;
-  p.run=S.gRun;
-  alarm(p.lbl+' → mode AUTO','ok',p.n);renderPumps();
-}
-function gStart(){
-  S.gRun=true;
-  Object.entries(P).forEach(([id,p])=>{if(!p.lock){p.run=true;p.mode='auto';}});
-  alarm('Démarrage global STEP — Mode AUTO','ok','Système');
-  $('g-badge').textContent='● AUTO';$('g-badge').className='badge bg';
-  renderPumps();
-}
-function gStop(){
-  S.gRun=false;
-  Object.entries(P).forEach(([id,p])=>{if(!p.lock){p.run=false;p.mode='auto';}});
-  alarm('Arrêt global STEP','warn','Système');
-  $('g-badge').textContent='■ ARRÊT';$('g-badge').className='badge bx';
-  renderPumps();
-}
-
-function pcard(id){
-  const p=P[id];
-  const lc=p.fault?'lr':p.run?'lg':p.lock?'lo':'lx';
-  const sc=p.fault?'sf':p.lock&&p.run?'sm':p.run?'sr':'ss';
-  const st=p.fault?'DÉFAUT':p.lock?'MAN '+(p.run?'ON':'OFF'):p.run?'MARCHE':'ARRÊT';
-  const cls=p.fault?'fault':p.lock?'man':p.run?'run':'';
-  const kw=p.run?p.kw:0;
-  const rpm=p.run?p.rpm+~~((Math.random()-.5)*20):0;
-  const db=p.run?(S.debit+Math.random()*.05-.025):0;
-  return`<div class="pc ${cls}">
-    <div class="pct"><div><div class="pname"><span class="led ${lc}"></span>${p.lbl}</div><div class="pmodel">${p.mdl}</div></div><span class="pst ${sc}">${st}</span></div>
-    <div class="pv"><span>Puissance: <b>${kw.toFixed(2)} kW</b></span><span>Mode: <b style="color:${p.lock?'var(--O)':'var(--B)'}">${p.mode.toUpperCase()}</b></span><span>Vitesse: <b>${rpm} tr/min</b></span><span>Démarrages: <b>${p.starts}</b></span></div>
-    <div class="pbig">${p.run?db.toFixed(2):'0.00'}</div><div class="pbu">m³/h</div>
-    <div class="pbtns">
-      <button class="pbtn bg2" onclick="manStart('${id}')">▶ START</button>
-      <button class="pbtn br2" onclick="manStop('${id}')">■ STOP</button>
-      <button class="pbtn ${p.lock?'ba':'bm'}" onclick="${p.lock?'setAuto':'manStop'}('${id}')">${p.lock?'→ AUTO':'→ MAN'}</button>
-    </div>
-  </div>`;
-}
-
-function renderPumps(){
-  ['p01','p02','tamis','comp','p03'].forEach(id=>{
-    const el=$('pb-'+id);if(el)el.innerHTML=pcard(id);
-    const er=$('pb-'+id+'-r');if(er)er.innerHTML=pcard(id);
-  });
-  const rest=$('pb-rest');
-  if(rest)rest.innerHTML=['p04','p05','p06','p07','p08'].map(id=>`<div>${pcard(id)}</div>`).join('');
-  updateOvList();
-}
-
-function updateOvList(){
-  const el=$('ov-list');if(!el)return;
-  el.innerHTML=Object.entries(P).map(([id,p])=>{
-    const c=p.fault?'var(--R)':p.run?'var(--G)':'#1b3558';
-    const vc=p.fault?'bad':p.run?'ok':'off';
-    return`<div class="ir" style="cursor:pointer" onclick="go(2,document.querySelectorAll('.tab')[1])">
-      <span class="ik" style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:${c};display:inline-block"></span>${p.lbl}</span>
-      <span class="iv ${vc}">${p.fault?'DÉFAUT':p.run?'ON':'OFF'}</span></div>`;
-  }).join('');
-  const rc=Object.values(P).filter(p=>p.run).length;
-  $('run-cnt').textContent=rc+' ON';
-  set('s-pumps',rc+'/'+Object.keys(P).length,rc>5?'ok':'warn');
+  $('alm-eq').innerHTML = Object.entries(byEq).map(([k,v])=>
+    `<div style="display:flex;justify-content:space-between;font-size:10px;padding:3px 0;border-bottom:1px solid rgba(27,53,88,.4)">
+      <span style="color:var(--t2)">${k}</span>
+      <span style="color:var(--R);font-family:monospace;font-weight:700">${v}</span></div>`
+  ).join('') || '<div style="font-size:10px;color:var(--t3);padding:10px">Aucune alarme active</div>';
 }
 
 // ══ CHARTS ═════════════════════════════════════════
-function drawChart(id,datasets,yMin,yMax,refLines){
-  const c=$(id);if(!c)return;
-  const w=c.offsetWidth||200,h=c.offsetHeight||60;
+function drawChart(id, datasets, yMin, yMax, refs){
+  const c=$(id); if(!c) return;
+  const w=c.offsetWidth||200, h=c.offsetHeight||60;
   if(c.width!==w||c.height!==h){c.width=w;c.height=h;}
   const ctx=c.getContext('2d');
   ctx.clearRect(0,0,w,h);
-  ctx.fillStyle='#040c18';ctx.fillRect(0,0,w,h);
-  ctx.strokeStyle='#1b3558';ctx.lineWidth=.4;
+  ctx.fillStyle='#040c18'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='#1b3558'; ctx.lineWidth=.4;
   for(let i=0;i<=4;i++){const y=h-h/4*i;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  if(refLines)refLines.forEach(r=>{
+  if(refs) refs.forEach(r=>{
     const y=h-(r.v-yMin)/(yMax-yMin)*h*.9-h*.05;
-    ctx.strokeStyle=r.c;ctx.lineWidth=.8;ctx.setLineDash([4,3]);
-    ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();ctx.setLineDash([]);
+    ctx.strokeStyle=r.c; ctx.lineWidth=.8; ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); ctx.setLineDash([]);
   });
   datasets.forEach(ds=>{
-    if(!ds.d||ds.d.length<2)return;
-    ctx.beginPath();ctx.strokeStyle=ds.c;ctx.lineWidth=1.5;ctx.lineJoin='round';
+    if(!ds.d||ds.d.length<2) return;
+    ctx.beginPath(); ctx.strokeStyle=ds.c; ctx.lineWidth=1.5; ctx.lineJoin='round';
     ds.d.forEach((v,i)=>{
       const x=i/(ds.d.length-1)*w;
       const y=h-(v-yMin)/(yMax-yMin||1)*h*.9-h*.05;
@@ -790,250 +656,334 @@ function drawChart(id,datasets,yMin,yMax,refLines){
 }
 function push(arr,v,max=120){arr.push(v);if(arr.length>max)arr.shift();}
 
-// ══ FLOTTEURS ══════════════════════════════════════
-function renderFlotteurs(){
-  const N5=S.nRel>=90,N4=S.nRel>=60,N2=S.nRel>=25,N1=S.nRel>=15;
+// ══ EQUIPMENT CARD ═════════════════════════════════
+function ecard(run, fault, name, model, kw, mode){
+  const lc = fault?'lr':run?'lg':'lx';
+  const sc = fault?'esf':run?'esr':'ess';
+  const st = fault?'DÉFAUT':run?'MARCHE':'ARRÊT';
+  const cls = fault?'fault':run?'run':'off-state';
+  return `<div class="ec ${cls}">
+    <div class="ec-top">
+      <div><div class="ec-name"><span class="led ${lc}"></span>${name}</div><div class="ec-model">${model}</div></div>
+      <span class="est ${sc}">${st}</span>
+    </div>
+    <div class="ev">
+      <span>Puissance: <b>${run?kw:'0.00'} kW</b></span>
+      <span>Mode: <b style="color:var(--B)">${mode}</b></span>
+    </div>
+  </div>`;
+}
+
+// ══ RENDER ALL ═════════════════════════════════════
+function renderAll(){
+  // ── Connection status ──
+  const connMsg = S.connected
+    ? '<span style="color:var(--G)">✅ Connecté au PLCSIM</span>'
+    : '<div class="conn-banner">⟳ En attente des données PLCSIM...<br><small>Lance app.py sur ton PC</small></div>';
+  const cm1=$('conn-msg'); if(cm1) cm1.outerHTML='<div id="conn-msg">'+connMsg+'</div>';
+  const cm2=$('conn-msg2'); if(cm2) cm2.innerHTML=S.connected?'✅ Données PLCSIM en direct':'⟳ En attente PLCSIM...';
+  if(cm2) cm2.className='conn-banner'+(S.connected?' connected':'');
+
+  // ── Header badges ──
+  const conn=$('conn-badge');
+  if(conn){conn.textContent=S.connected?'● PLC CONNECTÉ':'⟳ ATTENTE PLC';conn.className='badge '+(S.connected?'bg':'bc');}
+  $('plc-dot').style.background=S.connected?'var(--G)':'var(--O)';
+  $('sb-conn').textContent=S.connected?'✅ PLC connecté':'⟳ Attente PLC';
+  $('sb-conn').style.color=S.connected?'var(--G)':'var(--O)';
+  if(S.lastUpdate)$('sb-last').textContent='Dernier update: '+S.lastUpdate;
+
+  if(!S.connected) return; // Ne rien afficher tant que pas connecté
+
+  // ── Global badge ──
+  if(D.Voyant_Alarme){$('g-badge').textContent='● ALARME';$('g-badge').className='badge br';}
+  else if(D.Voyant_Marche_General){$('g-badge').textContent='● AUTO';$('g-badge').className='badge bg';}
+  else{$('g-badge').textContent='■ ARRÊT';$('g-badge').className='badge bx';}
+
+  // ── Summary ──
+  set('s-conn','CONNECTÉ','ok');
+  set('s-mode',D.Voyant_Marche_General?'AUTO':'ARRÊT',D.Voyant_Marche_General?'ok':'bad');
+  $('s-up').textContent=fmt(S.elapsed);
+
+  const equipsRun=[D.P01_Run,D.P02_Run,D.Tamis_Run,D.Compresseur,D.P03_Run,D.P04_Run,D.P05_Run,D.P06_Run,D.P07_Run,D.P08_Run].filter(Boolean).length;
+  set('s-pumps',equipsRun+'/10',equipsRun>5?'ok':'warn');
+  set('s-comp',D.Compresseur?'MARCHE':'ARRÊT',D.Compresseur?'ok':'off');
+  set('s-uv',D.UV_Run?'ON':'OFF',D.UV_Run?'ok':'off');
+  set('s-pre',D.DosPreChlor?'ON':'OFF',D.DosPreChlor?'ok':'off');
+  set('s-post',D.DosPostChlor?'ON':'OFF',D.DosPostChlor?'ok':'off');
+  set('s-filsa2','OK','ok');
+
+  // Débit et REDOX depuis analogiques
+  $('s-debit').textContent=S.debitVal.toFixed(2)+' m³/h';
+  $('s-debit').className='iv cy';
+  const rdxOK=S.redoxVal>=650&&S.redoxVal<=850&&S.redoxVal>0;
+  set('s-redox',S.redoxVal>0?S.redoxVal+' mV':'— mV',rdxOK?'ok':S.redoxVal>0?'bad':'off');
+
+  // Niveaux depuis flotteurs
+  const nRelPct = D.N5?95:D.N4?65:D.N2?35:D.N1?20:5;
+  set('s-rel',nRelPct+'%','blue');
+  set('s-tr',S.nFin>0?~~S.nFin+'%':'—%','blue');
+
+  // ── Overview list ──
+  const equips=[
+    {n:'P01 – Relevage', r:D.P01_Run, f:D.Voyant_P01_Defaut},
+    {n:'P02 – Relevage', r:D.P02_Run, f:D.Voyant_P02_Defaut},
+    {n:'Tamis TA-RO', r:D.Tamis_Run, f:false},
+    {n:'Compresseur', r:D.Compresseur, f:false},
+    {n:'P03 – Recirc.', r:D.P03_Run, f:false},
+    {n:'P04 – Extract.', r:D.P04_Run, f:false},
+    {n:'P05 – Cuve Ent.', r:D.P05_Run, f:false},
+    {n:'P06 – Filtration', r:D.P06_Run, f:false},
+    {n:'P07 – Filtration', r:D.P07_Run, f:false},
+    {n:'P08 – Recirc.', r:D.P08_Run, f:false},
+  ];
+  const ol=$('ov-list');
+  if(ol){
+    ol.innerHTML=equips.map(e=>{
+      const c=e.f?'var(--R)':e.r?'var(--G)':'#1b3558';
+      const vc=e.f?'bad':e.r?'ok':'off';
+      return`<div class="ir"><span class="ik" style="display:flex;align-items:center;gap:5px"><span style="width:6px;height:6px;border-radius:50%;background:${c};display:inline-block"></span>${e.n}</span><span class="iv ${vc}">${e.f?'DÉFAUT':e.r?'ON':'OFF'}</span></div>`;
+    }).join('');
+  }
+  $('run-cnt').textContent=equipsRun+' ON';
+
+  // ── SVG updates ──
+  // Pompes
+  const svPumps={p01:[D.P01_Run,D.Voyant_P01_Defaut],p02:[D.P02_Run,D.Voyant_P02_Defaut],
+    p03:[D.P03_Run,false],p04:[D.P04_Run,false],p05:[D.P05_Run,false],
+    p06:[D.P06_Run,false],p07:[D.P07_Run,false],p08:[D.P08_Run,false]};
+  Object.entries(svPumps).forEach(([id,[run,fault]])=>{
+    const el=$('sv'+id);if(!el)return;
+    el.style.stroke=fault?'#ff3d57':run?'#00e676':'#1b3558';
+    el.style.strokeWidth=run||fault?'2':'1.5';
+    const txt=el.nextElementSibling;if(txt){txt.style.fill=fault?'#ff3d57':run?'#00e676':'#243a58';}
+  });
+  // Tamis
+  const st=$('svtamis');if(st)st.style.stroke=D.Tamis_Run?'#00e676':'#1b3558';
+  const stxt=$('svtamisst');if(stxt){stxt.textContent=D.Tamis_Run?'ACTIF':'ARRÊT';stxt.style.fill=D.Tamis_Run?'#00e676':'#243a58';}
+  const ev=$('svev');if(ev)ev.style.stroke=D.Tamis_EV?'#29b6f6':'#1b3558';
+  const evtxt=$('svevst');if(evtxt){evtxt.textContent=D.Tamis_EV?'ON':'OFF';evtxt.style.fill=D.Tamis_EV?'#29b6f6':'#243a58';}
+  // Compresseur
+  const cb=$('sv-comp-box');if(cb)cb.style.stroke=D.Compresseur?'#00e676':'#1b3558';
+  // UV
+  const uv=$('svuv-box');if(uv)uv.style.stroke=D.UV_Run?'#ce93d8':'#1b3558';
+  const uvtxt=$('svuv-st');if(uvtxt){uvtxt.textContent=D.UV_Run?'ON':'OFF';uvtxt.style.fill=D.UV_Run?'#ce93d8':'#243a58';}
+  // Pre-chlor
+  const pre=$('svpre');if(pre){pre.textContent=D.DosPreChlor?'AKL ON':'AKL OFF';pre.style.fill=D.DosPreChlor?'#00e676':'#243a58';}
+  // REDOX
+  const rdx=$('svredox');if(rdx){rdx.textContent=S.redoxVal>0?S.redoxVal+' mV':'— mV';rdx.style.fill=rdxOK?'#29b6f6':'#243a58';}
+  // Débit SVG
+  const dl=$('svdebit');if(dl){dl.textContent='Q: '+S.debitVal.toFixed(2)+' m³/h';dl.style.fill=S.debitVal>0?'#00e5ff':'#243a58';}
+  // Flotteurs SVG
+  $('svf5').style.fill=D.N5?'#ff3d57':'#243a58';
+  $('svf4').style.fill=D.N4?'#29b6f6':'#243a58';
+  $('svf2').style.fill=D.N2?'#00e676':'#243a58';
+  $('svf1').style.fill=D.N1?'#00e676':'#243a58';
+  // Flow lines color based on running state
+  const flowColor=(run)=>run?'#29b6f6':'#1b3558';
+  const setFlow=(id,run)=>{const e=$(id);if(e)e.style.stroke=flowColor(run);};
+  setFlow('fl-p01',D.P01_Run||D.P02_Run);
+  setFlow('fl-tamis',D.Tamis_Run);
+  setFlow('fl-t1',D.Tamis_Run);
+  setFlow('fl-t2',D.Tamis_Run);
+  setFlow('fl-r1',D.Compresseur);
+  setFlow('fl-r2',D.P03_Run||D.P04_Run);
+  setFlow('fl-f1',D.P06_Run||D.P07_Run);
+  setFlow('fl-f2',D.P06_Run||D.P07_Run);
+  setFlow('fl-uv',D.UV_Run);
+  setFlow('fl-fin',D.P06_Run||D.P07_Run);
+  // Boues flow
+  const bf=$('fl-boues');if(bf)bf.style.stroke=D.P04_Run?'#ff9800':'#1b3558';
+  const bf2=$('fl-boues2');if(bf2)bf2.style.stroke=D.P04_Run?'#ff9800':'#1b3558';
+  // Bubbles
+  if(D.Compresseur){
+    document.querySelectorAll('.bbl').forEach(b=>{
+      let cy=parseFloat(b.getAttribute('cy'));cy-=1.5;if(cy<186)cy=262;
+      b.setAttribute('cy',cy);b.setAttribute('opacity',(0.4+Math.random()*.4).toFixed(2));
+      b.style.stroke='#29b6f6';
+    });
+  }
+
+  // ── Tanks (basé sur flotteurs PLCSIM) ──
+  const relH=D.N5?95:D.N4?65:D.N2?35:D.N1?15:5;
+  const setTank=(id,h,col)=>{const e=$(id);if(e){e.style.height=h+'%';e.style.background=col;}};
+  setTank('tf-rel',relH,'#1a5090');
+  setTank('tf2-rel',relH,'#1a5090');
+  $('tp-rel').textContent=relH+'%';
+  $('tp2-rel').textContent=relH+'%';
+
+  // ── Screen 3: Relevage ──
+  const N5=D.N5,N4=D.N4,N2=D.N2,N1=D.N1;
+  // Flotteurs display
   const fdata=[
-    {id:'N1',active:N1,alm:!N1,lbl:N1?'OK':'VIDE'},
+    {id:'N1',active:N1,alm:!N1&&!N2,lbl:N1?'OK':'⚠VIDE'},
     {id:'N2',active:N2,alm:!N2,lbl:N2?'OK':'BAS'},
     {id:'N3',active:false,alm:false,lbl:'SPARE'},
     {id:'N4',active:N4,alm:false,lbl:N4?'START':'—'},
-    {id:'N5',active:N5,alm:N5,lbl:N5?'ALARME':'OK'},
+    {id:'N5',active:N5,alm:N5,lbl:N5?'⚠MAX':'OK'},
   ];
   const fr=$('frow');
   if(fr)fr.innerHTML=fdata.map(f=>{
-    const cls=f.alm?'fl fl-alm':f.active?'fl fl-on':'fl fl-off';
+    const cls=f.alm?'fl-box fl-alm':f.active?'fl-box fl-on':'fl-box fl-off';
     const col=f.alm?'var(--R)':f.active?'var(--G)':'var(--t3)';
-    return`<div class="${cls}"><div style="font-size:11px;font-weight:700;color:${col};font-family:monospace">${f.id}</div><div style="font-size:8px;color:${col};margin-top:2px">${f.lbl}</div></div>`;
+    return`<div class="${cls}"><div style="font-size:12px;font-weight:700;color:${col};font-family:monospace">${f.id}</div><div style="font-size:9px;color:${col};margin-top:3px">${f.lbl}</div></div>`;
   }).join('');
-  // SVG flotteur indicators
-  const colors={N1:N1?'#00e676':'#ff3d57',N2:N2?'#00e676':'#ff9800',N4:N4?'#29b6f6':'#1b3558',N5:N5?'#ff3d57':'#243a58'};
-  const ef=$('svf1i');if(ef)ef.style.fill=colors.N1;
-  const ef2=$('svf2i');if(ef2)ef2.style.fill=colors.N2;
-  const ef4=$('svf4i');if(ef4)ef4.style.fill=colors.N4;
-  const ef5=$('svf5i');if(ef5)ef5.style.fill=colors.N5;
-  // Status indicators
+
   set('ir-n5',N5?'ALARME':'OK',N5?'bad':'ok');
   set('ir-n4',N4?'ACTIF':'INACTIF',N4?'cy':'off');
   set('ir-n2',N2?'OK':'BAS',N2?'ok':'warn');
   set('ir-n1',N1?'OK':'VIDE!',N1?'ok':'bad');
   // Relevage badge
-  const rb=$('rel-st-badge');
-  if(rb){
-    if(N5){rb.textContent='N5 ALARME MAX';rb.style.color='var(--R)';}
-    else if(N4){rb.textContent='N4 ATTEINT';rb.style.color='var(--C)';}
-    else{rb.textContent='REMPLISSAGE...';rb.style.color='var(--O)';}
-  }
-}
+  const rb=$('rel-badge');
+  if(rb){rb.textContent=N5?'N5 MAX ALARME':N4?'N4 ATTEINT':'REMPLISSAGE...';rb.style.color=N5?'var(--R)':N4?'var(--C)':'var(--O)';}
 
-// ══ MAIN ANIMATE ═══════════════════════════════════
-function animate(){
-  S.tick++;S.elapsed++;
-
-  if(S.gRun){
-    S.redox=Math.round(712+Math.sin(S.tick*.04)*55+Math.random()*8);
-    S.debit=Math.max(0,+(S.debitSP+Math.sin(S.tick*.09)*.04+(Math.random()-.5)*.03).toFixed(2));
-    S.volTotal+=S.debit/3600;
-
-    // ── POSTE RELEVAGE — logique réelle ──
-    // Le réservoir se remplit naturellement (débit entrant)
-    // Pompe vide quand N4 atteint, s'arrête sous N1
-    if(S.nRel<60){
-      // En dessous de N4 : montée naturelle (eaux usées entrent)
-      S.nRel=Math.min(60,S.nRel+0.4+(Math.random()*.2));
-    } else if(S.nRel>=60&&(P.p01.run||P.p02.run)){
-      // N4 atteint + pompe active = légère variation (pompe pompe mais entrée continue)
-      S.nRel=Math.max(55,Math.min(65,S.nRel+(Math.random()>.55?0.15:-0.25)));
-    } else if(S.nRel>=60&&!P.p01.run&&!P.p02.run){
-      // N4 atteint mais pompe arrêtée = monte encore
-      S.nRel=Math.min(95,S.nRel+0.3);
-    }
-    if(S.nRel>=90&&!S.alm_n5_sent){alarm('🚨 KLAXON — Niveau MAX relevage (N5) !','crit','Relevage');S.alm_n5_sent=true;}
-    if(S.nRel<85) S.alm_n5_sent=false;
-
-    // Autres cuves : variation réaliste
-    if(S.tick%4===0){
-      S.nFin=Math.max(20,Math.min(88,S.nFin+(Math.random()>.52?0.8:-0.8)));
-      S.nSur=Math.max(20,Math.min(85,S.nSur+(Math.random()>.5?0.7:-0.7)));
-      S.nEnt=Math.max(15,Math.min(88,S.nEnt+(Math.random()>.5?0.6:-0.6)));
-      S.nBou=Math.max(10,Math.min(78,S.nBou+(Math.random()>.62?0.5:-0.5)));
-    }
-
-    // P03/P04 cycliques AUTO (seulement si pas lock)
-    if(!P.p03.lock) P.p03.run=(S.tick%160)<28;
-    if(!P.p04.lock) P.p04.run=(S.tick%160)>=35&&(S.tick%160)<60;
-
-    // Alternance P01/P02 AUTO
-    if(!P.p01.lock&&!P.p02.lock&&S.tick%240===0){
-      const prev=S.dernierePompe;
-      S.dernierePompe=S.dernierePompe===1?2:1;
-      P['p0'+prev].run=false;
-      const next=P['p0'+S.dernierePompe];
-      next.run=true;next.starts++;
-      set('alt-lbl','P0'+S.dernierePompe,'cy');
-      set('ir-alt','P0'+S.dernierePompe+' actif','cy');
-      set('st-pmp','P0'+S.dernierePompe,'');
-      $('st-pmp').style.color='var(--P)';
-    }
-  }
-
-  // ── Clock ──
-  $('clk').textContent=now();
-  $('sb-up').textContent='⏱ '+fmt(S.elapsed);
-  $('sb-q').textContent='Q: '+S.debit.toFixed(2)+' m³/h';
-  $('sb-rdx').textContent='REDOX: '+S.redox+' mV';
-
-  // ── History ──
-  if(S.tick%2===0){
-    push(S.hRdx,S.redox);push(S.hDeb,S.debit);
-    push(S.hRel,S.nRel);push(S.hFin,S.nFin);push(S.hSur,S.nSur);
-  }
-
-  const rdxOK=S.redox>=650&&S.redox<=850;
-  const uvOn=P.p06.run||P.p07.run;
-
-  // ── Summary ──
-  set('s-mode',S.gRun?'AUTO':'ARRÊT',S.gRun?'ok':'bad');
-  $('s-up').textContent=fmt(S.elapsed);
-  set('s-comp',P.comp.run?'MARCHE':'ARRÊT',P.comp.run?'ok':'off');
-  set('s-debit',S.debit.toFixed(2)+' m³/h','cy');
-  set('s-redox',S.redox+' mV',rdxOK?'ok':'bad');
-  set('s-rel',~~S.nRel+'%','blue');
-  set('s-tr',~~S.nFin+'%','blue');
-  set('s-uv',uvOn?'ON':'OFF',uvOn?'ok':'off');
-  set('s-pre',uvOn?'ON':'OFF',uvOn?'ok':'off');
-  set('s-post',rdxOK?'ON':'HORS SL',rdxOK?'ok':'bad');
-
-  // ── SVG updates ──
-  // Relevage tank
-  const rh=S.nRel;
-  const rfill=$('sv-rel-fill');
-  if(rfill){const h=88*rh/100;rfill.setAttribute('y',110-h);rfill.setAttribute('height',h);}
-  const rfill2=$('tf-rel');if(rfill2)rfill2.style.height=rh+'%';
-  const rfill3=$('tf2-rel');if(rfill3)rfill3.style.height=rh+'%';
-  $('tp-rel').textContent=~~rh+'%';
-  $('tp2-rel').textContent=~~rh+'%';
-
-  // Cuve enterrée
-  const ef=$('sv-ent-fill');if(ef){const h=46*S.nEnt/100;ef.setAttribute('y',216-h);ef.setAttribute('height',h);}
-  // Cuve surface
-  const sf=$('sv-sur-fill');if(sf){const h=35*S.nSur/100;sf.setAttribute('y',310-h);sf.setAttribute('height',h);}
-  // Cuve finale
-  const ff=$('sv-fin-fill');if(ff){const h=92*S.nFin/100;ff.setAttribute('y',382-h);ff.setAttribute('height',h);}
-  const fp=$('sv-fin-pct');if(fp)fp.textContent=~~S.nFin+'%';
-
-  // Débit label SVG
-  const dl=$('svdebit');if(dl)dl.textContent='Q: '+S.debit.toFixed(2)+' m³/h';
-  const er=$('svredox');if(er)er.textContent=S.redox+' mV';
-  const ep=$('svpre');if(ep){ep.textContent=uvOn?'AKL ON':'AKL OFF';ep.style.fill=uvOn?'#00e676':'#243a58';}
-  const eu=$('svuv-st');if(eu)eu.textContent=uvOn?'ON':'OFF';
-  const euv=$('svuv-box');if(euv)euv.style.stroke=uvOn?'#ce93d8':'#1b3558';
-
-  // Pump circles SVG
-  const sp={p01:'svp01',p02:'svp02',p03:'svp03',p04:'svp04',p05:'svp05',p06:'svp06',p07:'svp07',p08:'svp08'};
-  Object.entries(sp).forEach(([id,svid])=>{
-    const el=$(svid);if(!el)return;
-    el.style.stroke=P[id].fault?'#ff3d57':P[id].run?'#00e676':'#1b3558';
-    el.style.strokeWidth=P[id].run?'2':'1.5';
-  });
-  // Tamis
-  const st=$('svtamis');if(st){st.style.stroke=P.tamis.run?'#00e676':'#1b3558';}
-
-  // Bubbles
-  if(P.comp.run){
-    document.querySelectorAll('.bbl').forEach(b=>{
-      let cy=parseFloat(b.getAttribute('cy'));cy-=1.5;if(cy<170)cy=248;
-      b.setAttribute('cy',cy);b.setAttribute('opacity',(0.3+Math.random()*.4).toFixed(2));
-    });
-  }
-
-  // ── Debit arc ──
-  updateArc(S.debit);
-  $('st-pv').textContent=S.debit.toFixed(2);
+  set('st-p01',D.P01_Run?'MARCHE':'ARRÊT',D.P01_Run?'ok':'off');
+  set('st-p02',D.P02_Run?'MARCHE':'ARRÊT',D.P02_Run?'ok':'off');
+  $('st-alt').textContent=D.P01_Run?'P01':'P02';
+  $('st-alt').style.color=D.P01_Run?'var(--C)':'var(--P)';
   $('st-vol').textContent=S.volTotal.toFixed(1);
 
-  // ── Levels screen ──
+  // P01/P02 infos
+  set('si-p01-m',D.P01_Run?'TRUE':'FALSE',D.P01_Run?'ok':'off');
+  set('si-p01-d',D.Voyant_P01_Defaut?'TRUE':'FALSE',D.Voyant_P01_Defaut?'bad':'ok');
+  set('si-p01-r',D.P01_Run?'RUN':'STOP',D.P01_Run?'ok':'off');
+  set('si-p02-m',D.P02_Run?'TRUE':'FALSE',D.P02_Run?'ok':'off');
+  set('si-p02-d',D.Voyant_P02_Defaut?'TRUE':'FALSE',D.Voyant_P02_Defaut?'bad':'ok');
+  set('si-p02-r',D.P02_Run?'RUN':'STOP',D.P02_Run?'ok':'off');
+
+  // Analogiques
+  $('si-redox-raw').textContent=S.redoxVal>0?'~'+~~(S.redoxVal*27.6):'—';
+  $('si-redox-conv').textContent=S.redoxVal>0?S.redoxVal+' mV':'— mV';
+  $('si-deb-raw').textContent=S.debitVal>0?'~'+~~(S.debitVal*1820):'—';
+  $('si-deb-conv').textContent=S.debitVal>0?S.debitVal.toFixed(2)+' m³/h':'— m³/h';
+  set('si-eu',D.EU?'ACTIF':'OK',D.EU?'bad':'ok');
+  set('si-auto',D.ModeAuto?'AUTO':'MAN',D.ModeAuto?'ok':'warn');
+
+  // ── Screen 4: Niveaux ──
   function setMG(mg,mf,v,max,col,unit){
-    const e=$(mg);if(e)e.innerHTML=~~v+` <small style="font-size:11px">${unit}</small>`;
-    const f=$(mf);if(f){f.style.width=(v/max*100)+'%';f.style.background=col;}
+    const e=$(mg);if(e)e.innerHTML=(v>0?~~v:'—')+` <small style="font-size:11px">${unit}</small>`;
+    const f=$(mf);if(f&&v>0){f.style.width=(v/max*100)+'%';f.style.background=col;}
   }
-  setMG('mg-rel','mf-rel',S.nRel,100,'var(--B)','%');
+  setMG('mg-rel','mf-rel',relH,100,'var(--B)','%');
   setMG('mg-ent','mf-ent',S.nEnt,100,'var(--B)','%');
   setMG('mg-sur','mf-sur',S.nSur,100,'var(--C)','%');
   setMG('mg-fin','mf-fin',S.nFin,100,'var(--G)','%');
-  setMG('mg-bou','mf-bou',S.nBou,100,'var(--O)','%');
-  setMG('mg-rdx','mf-rdx',Math.min(S.redox,1000),1000,rdxOK?'var(--G)':'var(--R)','mV');
-  // Tank level bars screen 4
-  function setTF(id,v,col){const e=$(id);if(e){e.style.height=v+'%';e.style.background=col;}}
-  setTF('tf2-ent',S.nEnt,'#1a4080');setTF('tf2-sur',S.nSur,'#1a4080');
-  setTF('tf2-fin',S.nFin,'#0e3020');setTF('tf2-bou',S.nBou,'#1a1000');
-  ['ent','sur','fin','bou'].forEach(k=>{
-    const vals={ent:S.nEnt,sur:S.nSur,fin:S.nFin,bou:S.nBou};
-    const cols={ent:'var(--B)',sur:'var(--C)',fin:'var(--G)',bou:'var(--O)'};
-    const e=$('tp2-'+k);if(e){e.textContent=~~vals[k]+'%';e.style.color=cols[k];}
-  });
+  setMG('mg-rdx','mf-rdx',S.redoxVal,1000,rdxOK?'var(--G)':'var(--R)','mV');
 
-  // KPI screen 4
-  $('kp-run').textContent=Object.values(P).filter(p=>p.run).length;
-  $('kp-deb').textContent=S.debit.toFixed(2);
+  $('kp-run').textContent=equipsRun;
+  $('kp-rdx').textContent=S.redoxVal>0?S.redoxVal:'—';
   $('kp-vol').textContent=S.volTotal.toFixed(1);
-  $('kp-rdx').textContent=S.redox;
 
-  // ── Charts ──
-  drawChart('mc1',[{d:S.hRdx,c:'#29b6f6'}],500,1000,[{v:650,c:'#ff9800'},{v:850,c:'#ff9800'}]);
-  drawChart('mc2',[{d:S.hDeb,c:'#00e676'}],0,3);
-  drawChart('ch-deb',[{d:S.hDeb,c:'#00e5ff'}],0,3);
-  drawChart('ch-deb2',[{d:S.hDeb,c:'#00e5ff'}],0,3);
-  drawChart('ch-rdx',[{d:S.hRdx,c:'#29b6f6'}],500,1000,[{v:650,c:'rgba(255,152,0,.5)'},{v:850,c:'rgba(255,152,0,.5)'}]);
-  drawChart('ch-niv',[{d:S.hRel,c:'#29b6f6'},{d:S.hFin,c:'#00e676'},{d:S.hSur,c:'#00e5ff'}],0,100);
-
-  // ── Flotteurs ──
-  renderFlotteurs();
-
-  // ── Random alarm gen ──
-  if(S.gRun&&S.tick%260===0&&Math.random()>.72){
-    const fa=[['Tamis: sécurité couvercle ouverte','warn','Tamis'],['Pré-chloration: manque réactif hypochlorite','warn','Pré-chlor.'],['FILSA: niveau max — fermer vanne épaississeur','crit','FILSA'],['REDOX hors seuil: '+S.redox+' mV (650–850)','warn','REDOX'],['P02: défaut disjoncteur — vérifier thermique','crit','P02']];
-    const f=fa[~~(Math.random()*fa.length)];alarm(f[0],f[1],f[2]);
-  }
-  if(!rdxOK&&S.tick%100===0)alarm('REDOX hors plage: '+S.redox+' mV','warn','REDOX');
-
-  // ── Render pumps if visible ──
-  if($('s2').classList.contains('on')||$('s3').classList.contains('on'))renderPumps();
-  updateOvList();
+  // ── Screen 2: Equipment cards ──
+  const cards=[
+    ['p01','P01 Relevage','AMAPORTER 500 ND',D.P01_Run,D.Voyant_P01_Defaut,0.55,'AUTO'],
+    ['p02','P02 Relevage','AMAPORTER 500 ND',D.P02_Run,D.Voyant_P02_Defaut,0.55,'AUTO'],
+    ['tamis','Tamis TA-RO','Moteur 0.12kW',D.Tamis_Run,false,0.12,'AUTO'],
+    ['comp','Compresseur FPZ','R-30 MD 1.1kW',D.Compresseur,false,1.10,'AUTO'],
+    ['p03','P03 Recirc.','AMAPORTER 500 ND',D.P03_Run,false,0.55,'AUTO'],
+    ['p04','P04 Extract.','AMAPORTER 500 ND',D.P04_Run,false,0.55,'AUTO'],
+    ['p05','P05 Cuve Ent.','AMAPORTER 500 ND',D.P05_Run,false,0.55,'AUTO'],
+    ['p06','P06 Filtration','COMPACT A8 0.6kW',D.P06_Run,false,0.60,'AUTO'],
+    ['p07','P07 Filtration','COMPACT A8 0.6kW',D.P07_Run,false,0.60,'AUTO'],
+    ['p08','P08+UV+Chlor.','COMPACT A4 0.3kW',D.P08_Run,false,0.30,'AUTO'],
+  ];
+  cards.forEach(([id,name,model,run,fault,kw,mode])=>{
+    const el=$('ec-'+id);if(el)el.innerHTML=ecard(run,fault,name,model,kw,mode);
+  });
 }
 
-// ══ SOCKET.IO — vraies données PLCSIM ══════════════
+// ══ SOCKET.IO — DONNÉES PLCSIM ═════════════════════
 try {
   const socket = io();
-  socket.on("connect", () => { console.log("✅ Flask connecté"); });
-  socket.on("update", data => {
-    if("P01_Run" in data) P.p01.run = data.P01_Run;
-    if("P02_Run" in data) P.p02.run = data.P02_Run;
-    if("Tamis_Run" in data) P.tamis.run = data.Tamis_Run;
-    if("Compresseur" in data) P.comp.run = data.Compresseur;
-    if("P03_Run" in data) P.p03.run = data.P03_Run;
-    if("P04_Run" in data) P.p04.run = data.P04_Run;
-    if("P05_Run" in data) P.p05.run = data.P05_Run;
-    if("P06_Run" in data) P.p06.run = data.P06_Run;
-    if("P07_Run" in data) P.p07.run = data.P07_Run;
-    if("P08_Run" in data) P.p08.run = data.P08_Run;
-    if(data.Klaxon) alarm("🚨 KLAXON — Niveau maximum relevage !","crit","Relevage");
-    if(data.Voyant_P01_Defaut){P.p01.fault=true;alarm("Défaut pompe P01","crit","P01");}else P.p01.fault=false;
-    if(data.Voyant_P02_Defaut){P.p02.fault=true;alarm("Défaut pompe P02","crit","P02");}else P.p02.fault=false;
-    if(data.Voyant_Alarme){$("g-badge").textContent="● ALARME";$("g-badge").className="badge br";}
-    else if(data.Voyant_Marche_General){$("g-badge").textContent="● AUTO";$("g-badge").className="badge bg";}
+
+  socket.on('connect', ()=>{
+    S.connected = true;
+    console.log('✅ Connecté au serveur Flask');
+    alarm('Connexion PLC établie — données PLCSIM en direct','ok','Système');
+    renderAll();
   });
-} catch(e) {
-  console.warn("Socket.IO non disponible — mode simulation locale:", e.message);
+
+  socket.on('disconnect', ()=>{
+    S.connected = false;
+    console.log('⚠️ Déconnecté');
+    alarm('Connexion PLC perdue !','crit','Système');
+    renderAll();
+  });
+
+  socket.on('update', data => {
+    S.connected = true;
+    S.lastUpdate = now();
+
+    // ── Sorties PLC ──
+    if('P01_Run' in data) D.P01_Run = data.P01_Run;
+    if('P02_Run' in data) D.P02_Run = data.P02_Run;
+    if('Tamis_Run' in data) D.Tamis_Run = data.Tamis_Run;
+    if('Tamis_EV' in data) D.Tamis_EV = data.Tamis_EV;
+    if('Compresseur' in data) D.Compresseur = data.Compresseur;
+    if('P03_Run' in data) D.P03_Run = data.P03_Run;
+    if('P04_Run' in data) D.P04_Run = data.P04_Run;
+    if('P05_Run' in data) D.P05_Run = data.P05_Run;
+    if('P06_Run' in data) D.P06_Run = data.P06_Run;
+    if('P07_Run' in data) D.P07_Run = data.P07_Run;
+    if('P08_Run' in data) D.P08_Run = data.P08_Run;
+    if('UV_Run' in data) D.UV_Run = data.UV_Run;
+    if('DosPreChlor' in data) D.DosPreChlor = data.DosPreChlor;
+    if('DosPostChlor' in data) D.DosPostChlor = data.DosPostChlor;
+    if('Klaxon' in data) D.Klaxon = data.Klaxon;
+    if('Voyant_Alarme' in data) D.Voyant_Alarme = data.Voyant_Alarme;
+    if('Voyant_Marche_General' in data) D.Voyant_Marche_General = data.Voyant_Marche_General;
+    if('Voyant_P01_Defaut' in data) D.Voyant_P01_Defaut = data.Voyant_P01_Defaut;
+    if('Voyant_P02_Defaut' in data) D.Voyant_P02_Defaut = data.Voyant_P02_Defaut;
+    if('Vanne_NO' in data) D.Vanne_NO = data.Vanne_NO;
+    if('Vanne_NF' in data) D.Vanne_NF = data.Vanne_NF;
+
+    // ── Analogiques ──
+    if('REDOX_mV' in data) S.redoxVal = parseFloat(data.REDOX_mV)||0;
+    if('Debit_m3h' in data){S.debitVal = parseFloat(data.Debit_m3h)||0;S.volTotal+=S.debitVal/1800;}
+
+    // ── Alarmes automatiques depuis PLC ──
+    if(D.Klaxon) alarm('🚨 KLAXON — Niveau MAX relevage (N5) !','crit','Relevage');
+    if(D.Voyant_P01_Defaut) alarm('Défaut pompe P01 — vérifier disjoncteur','crit','P01');
+    if(D.Voyant_P02_Defaut) alarm('Défaut pompe P02 — vérifier disjoncteur','crit','P02');
+    if(D.Voyant_Alarme && !D.Klaxon && !D.Voyant_P01_Defaut && !D.Voyant_P02_Defaut)
+      alarm('Alarme générale active — vérifier PLCSIM','warn','Système');
+
+    // ── Historique ──
+    if(S.redoxVal>0) push(S.hRdx, S.redoxVal);
+    if(S.debitVal>=0) push(S.hDeb, S.debitVal);
+    push(S.hRel, D.N5?95:D.N4?65:D.N2?35:D.N1?15:5);
+
+    renderAll();
+    updateAlmBadge();
+
+    // Charts
+    drawChart('mc1',[{d:S.hRdx,c:'#29b6f6'}],400,1000,[{v:650,c:'rgba(255,152,0,.5)'},{v:850,c:'rgba(255,152,0,.5)'}]);
+    drawChart('mc2',[{d:S.hDeb,c:'#00e676'}],0,3);
+    drawChart('ch-deb',[{d:S.hDeb,c:'#00e5ff'}],0,3);
+    drawChart('ch-rdx',[{d:S.hRdx,c:'#29b6f6'}],400,1000,[{v:650,c:'rgba(255,152,0,.4)'},{v:850,c:'rgba(255,152,0,.4)'}]);
+    drawChart('ch-niv',[{d:S.hRel,c:'#29b6f6'},{d:S.hFin,c:'#00e676'},{d:S.hSur,c:'#00e5ff'}],0,100);
+  });
+
+} catch(e){
+  console.warn('Socket.IO non disponible:', e.message);
 }
 
+// ══ CLOCK LOOP ═════════════════════════════════════
+setInterval(()=>{
+  S.elapsed++;
+  $('clk').textContent=now();
+  $('sb-up').textContent='⏱ '+fmt(S.elapsed);
+  // Animate bubbles even when connected
+  if(D.Compresseur){
+    document.querySelectorAll('.bbl').forEach(b=>{
+      let cy=parseFloat(b.getAttribute('cy'));cy-=1;if(cy<186)cy=262;
+      b.setAttribute('cy',cy);
+    });
+  }
+}, 1000);
+
 // ══ INIT ═══════════════════════════════════════════
-renderPumps();renderAlarms();updateAlmBadge();
-alarm('Système STEP V3 initialisé — Mode AUTO actif','ok','Système');
-alarm('Réservoir relevage en cours de remplissage vers N4','ok','Relevage');
-alarm('Plage horaire compresseur: 09:00–12:30 active','ok','Compresseur FPZ');
-setInterval(animate,500);
-animate();
+renderAll();
+alarm('Dashboard STEP HMI v3 chargé — attente connexion PLCSIM','ok','Système');
 </script>
 </body>
 </html>
