@@ -1,58 +1,90 @@
-import openpyxl
-import os
+import snap7
+from snap7 import util
+import struct
 
-XLSX_PATH = "plc_data.xlsx"
+# ── CONFIG ─────────────────────────────────────────
+PLC_IP   = "192.168.0.1"
+PLC_RACK = 0
+PLC_SLOT = 1  # S7-1500
 
-NAME_MAP = {
-    "Q_Pompe01_Run":           "P01_Run",
-    "Q_Pompe02_Run":           "P02_Run",
-    "Q_Voyant_P01_Marche":     "Voyant_P01_Marche",
-    "Q_Voyant_P02_Marche":     "Voyant_P02_Marche",
-    "Q_Voyant_P01_Defaut":     "Voyant_P01_Defaut",
-    "Q_Voyant_P02_Defaut":     "Voyant_P02_Defaut",
-    "Q_Tamis_MoteurRun":       "Tamis_Run",
-    "Q_Tamis_EV_Nettoyage":    "Tamis_EV",
-    "Q_Compresseur_Run":       "Compresseur",
-    "Q_Pompe03_Run":           "P03_Run",
-    "Q_Pompe04_Run":           "P04_Run",
-    "Q_Pompe05_Run":           "P05_Run",
-    "Q_Pompe06_Run":           "P06_Run",
-    "Q_Pompe07_Run":           "P07_Run",
-    "Q_Pompe08_Run":           "P08_Run",
-    "Q_UV_Run":                "UV_Run",
-    "Q_DosPreChlor_Run":       "DosPreChlor",
-    "Q_DosPostChlor_Run":      "DosPostChlor",
-    "Q_Klaxon":                "Klaxon",
-    "Q_Voyant_Alarme_General": "Voyant_Alarme",
-    "Q_Voyant_Marche_General": "Voyant_Marche_General",
-    "Q_VanneNO_Ouvrir":        "Vanne_NO",
-    "Q_VanneNF_Ouvrir":        "Vanne_NF",
-    "Q_VanneEpais_Ouvrir":     "Vanne_Epais",
+# DB Numbers — confirmés depuis TIA Portal
+DB_SORTIES     = 9   # DB_Sorties [DB9]
+DB_ANALOGIQUES = 1   # DB_Analogiques [DB1]
+
+# Mapping DB_Sorties — (byte, bit)
+Q_MAP = {
+    "P01_Run":               (0, 0),
+    "P02_Run":               (0, 1),
+    "Voyant_P01_Marche":     (0, 2),
+    "Voyant_P02_Marche":     (0, 3),
+    "Voyant_P01_Defaut":     (0, 4),
+    "Voyant_P02_Defaut":     (0, 5),
+    "Tamis_Run":             (0, 6),
+    "Tamis_EV":              (0, 7),
+    "Voyant_Tamis_Marche":   (1, 0),
+    "Voyant_Tamis_Defaut":   (1, 1),
+    "Voyant_Tamis_Securite": (1, 2),
+    "Compresseur":           (1, 3),
+    "P03_Run":               (1, 4),
+    "P04_Run":               (1, 5),
+    "Voyant_Comp_Marche":    (1, 6),
+    "Voyant_Comp_Defaut":    (1, 7),
+    "P05_Run":               (2, 2),
+    "P06_Run":               (2, 5),
+    "P07_Run":               (2, 6),
+    "P08_Run":               (2, 7),
+    "Vanne_NO":              (3, 0),
+    "Vanne_NF":              (3, 1),
+    "DosPreChlor":           (3, 2),
+    "DosPostChlor":          (3, 3),
+    "UV_Run":                (3, 4),
+    "Klaxon":                (4, 4),
+    "Voyant_Alarme":         (4, 5),
+    "Voyant_Marche_General": (4, 6),
 }
 
+plc = snap7.client.Client()
+connected = False
+
+def connect():
+    global connected
+    try:
+        plc.connect(PLC_IP, PLC_RACK, PLC_SLOT)
+        connected = True
+        print(f"✅ snap7 connecté: {PLC_IP}")
+    except Exception as e:
+        connected = False
+        print(f"❌ snap7 erreur connexion: {e}")
+
 def read_all():
+    global connected
+    if not connected:
+        connect()
+    if not connected:
+        return {}
+
     result = {}
     try:
-        if not os.path.exists(XLSX_PATH):
-            print("❌ plc_data.xlsx introuvable")
-            return {}
+        # Lire DB_Sorties [DB9] — 5 bytes
+        data = plc.db_read(DB_SORTIES, 0, 5)
+        for name, (byte, bit) in Q_MAP.items():
+            result[name] = util.get_bool(data, byte, bit)
 
-        wb = openpyxl.load_workbook(XLSX_PATH, data_only=True)
-        ws = wb.active
+        # Lire DB_Analogiques [DB1] — REDOX + Débit
+        try:
+            data_a = plc.db_read(DB_ANALOGIQUES, 0, 4)
+            redox_raw = struct.unpack('>h', bytes(data_a[0:2]))[0]
+            debit_raw = struct.unpack('>h', bytes(data_a[2:4]))[0]
+            result["REDOX_mV"]  = round(-2000 + (redox_raw / 27648) * 4000, 1)
+            result["Debit_m3h"] = round(0.25  + (debit_raw / 27648) * 2.25,  3)
+        except Exception as e:
+            result["REDOX_mV"]  = 0.0
+            result["Debit_m3h"] = 0.0
 
-        for row in ws.iter_rows(min_row=1, values_only=True):
-            if not row[0]:
-                continue
-            # Nettoyer le nom : enlever guillemets
-            raw_name = str(row[0]).strip().replace('"', '').replace("'", "")
-            raw_val  = str(row[4]).strip() if row[4] is not None else "FALSE"
-
-            if raw_name in NAME_MAP:
-                result[NAME_MAP[raw_name]] = (raw_val.upper() == "TRUE")
-
-        print(f"✅ Lu {len(result)} variables")
+        print(f"✅ Lu {len(result)} variables snap7 temps réel")
 
     except Exception as e:
-        print(f"❌ Erreur lecture: {e}")
+        print(f"❌ Erreur lecture snap7: {e}")
+        connected = False
 
     return result
