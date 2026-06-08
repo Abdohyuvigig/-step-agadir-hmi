@@ -3,7 +3,7 @@ from snap7 import util
 import struct
 
 # ── CONFIG ─────────────────────────────────────────
-PLC_IP   = "192.168.0.1"
+PLC_IP   = "172.16.17.68"
 PLC_RACK = 0
 PLC_SLOT = 1  # S7-1500
 
